@@ -22,11 +22,14 @@ app.use('/api/products/', require('./routes/productRoutes'));
 app.use('/api/measures/', require('./routes/measureRoutes'));
 
 // Server Frontend
+console.log('antes de servir');
 if (process.env.NODE_ENV === 'production') {
     // Set build folder as static
     app.use(express.static(path.join(__dirname, '../frontend/build')))
+    console.log('antes de get');
 
     app.get('*', (req, res) => res.sendFile(__dirname, '../', 'frontend', 'build', 'index.html'))
+    console.log('despues de get');
 } else {
     app.get('/', (req, res) => {
         res.status(201).json({
