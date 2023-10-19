@@ -21,6 +21,8 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/products/', require('./routes/productRoutes'));
 app.use('/api/measures/', require('./routes/measureRoutes'));
 
+app.use('/api/masters/', require('./routes/masterRoutes'));
+
 // Server Frontend
 console.log('antes de servir');
 if (process.env.NODE_ENV === 'production') {

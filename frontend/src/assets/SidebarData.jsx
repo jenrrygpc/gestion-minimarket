@@ -84,5 +84,19 @@ export const SidebarData = [
         icon: <IoIcons.IoIosPaper />
       }
     ]
+  },
+  {
+    title: 'Maestros',
+    path: '/maestros',
+    icon: <FaIcons.FaCartPlus />,
+    iconClosed: <RiIcons.RiArrowDownSFill />,
+    iconOpened: <RiIcons.RiArrowUpSFill />,
+    subNav: [
+      {
+        title: 'Categoria',
+        path: '/maestros/categoria',
+        icon: <IoIcons.IoIosPaper />
+      }
+    ]
   }
 ];
