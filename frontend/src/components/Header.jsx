@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSignInAlt, FaSignOutAlt, FaUser, FaProductHunt, FaBars } from 'react-icons/fa';
 import styled from 'styled-components';
 import { AiOutlineClose } from 'react-icons/ai';
@@ -10,7 +10,10 @@ import SubMenu from './SubMenu';
 
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout, reset, showSidebar } from '../features/auth/authSlice';
+import {
+  logout, reset, showSidebar,
+  getUser
+} from '../features/auth/authSlice';
 
 
 
@@ -65,13 +68,31 @@ function Header() {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, sidebar } = useSelector((state) => state.auth);
+  const { user, sidebar, isError, message } = useSelector((state) => state.auth);
 
   const onLogout = () => {
     dispatch(logout());
     dispatch(reset());
     navigate('/');
   };
+
+  //use effect para verificar si el token sigue vigente
+  useEffect(() => {
+    console.log('useEffect para verificar el token.', user);
+    if (user) {
+      dispatch(getUser());
+    }
+
+  }, []);
+
+  useEffect(() => {
+    console.log('useEffect para volver a cargar .', user, isError, message);
+    if (isError) {
+      dispatch(logout());
+      dispatch(reset());
+      navigate('/');
+    }
+  }, [user, isError, message]);
 
   //const [sidebar, setSidebar] = useState(false);
 

@@ -23,12 +23,24 @@ const login = async (userData) => {
   console.log('response.data ..:', response.data);
 
   if (response.data) {
-      console.log('localStorage ..:'); 
-      localStorage.setItem('user', JSON.stringify(response.data));
+    console.log('localStorage ..:');
+    localStorage.setItem('user', JSON.stringify(response.data));
   } else {
     throw new Error('Problemas al validar usuario!');
   }
 
+  return response.data;
+}
+
+// get User
+const getUser = async (token) => {
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  const response = await axios.get(`${API_URL}/me`, config);
+  console.log('response ..:', response);
   return response.data;
 }
 
@@ -38,5 +50,6 @@ const logout = () => localStorage.removeItem('user');
 export default {
   register,
   logout,
-  login
+  login,
+  getUser
 };
