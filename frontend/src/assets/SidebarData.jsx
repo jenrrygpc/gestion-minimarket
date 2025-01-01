@@ -3,6 +3,7 @@ import * as FaIcons from 'react-icons/fa';
 import * as AiIcons from 'react-icons/ai';
 import * as IoIcons from 'react-icons/io';
 import * as RiIcons from 'react-icons/ri';
+import * as FcIcons from 'react-icons/fc';
 
 export const SidebarData = [
   {
@@ -13,6 +14,11 @@ export const SidebarData = [
     iconOpened: <RiIcons.RiArrowUpSFill />,
 
     subNav: [
+      {
+        title: 'Venta por código',
+        path: '/ventas/venta',
+        icon: <FcIcons.FcSalesPerformance />
+      },
       {
         title: 'Cierre de caja',
         path: '/ventas/cierre',
@@ -35,6 +41,30 @@ export const SidebarData = [
       {
         title: 'Registrar producto venta',
         path: '/productos/venta',
+        icon: <IoIcons.IoIosPaper />
+      },
+      {
+        title: 'Registrar',
+        path: '/productos/registro',
+        icon: <IoIcons.IoIosPaper />
+      }
+    ]
+  },
+  {
+    title: 'Inventario',
+    path: '/inventario',
+    icon: <FaIcons.FaCartPlus />,
+    iconClosed: <RiIcons.RiArrowDownSFill />,
+    iconOpened: <RiIcons.RiArrowUpSFill />,
+    subNav: [
+      {
+        title: 'Nuevo movimiento',
+        path: '/inventario/nuevo',
+        icon: <IoIcons.IoIosPaper />
+      },
+      {
+        title: 'Movimientos',
+        path: '/inventario/consulta',
         icon: <IoIcons.IoIosPaper />
       }
     ]
@@ -95,6 +125,30 @@ export const SidebarData = [
       {
         title: 'Categoria',
         path: '/maestros/categoria',
+        icon: <IoIcons.IoIosPaper />
+      },
+      {
+        title: 'Presentacion',
+        path: '/maestros/presentacion',
+        icon: <IoIcons.IoIosPaper />
+      },
+      {
+        title: 'Tienda',
+        path: '/maestros/tienda',
+        icon: <IoIcons.IoIosPaper />
+      }
+    ]
+  },
+  {
+    title: 'Usuarios',
+    path: '/usuarios',
+    icon: <FaIcons.FaCartPlus />,
+    iconClosed: <RiIcons.RiArrowDownSFill />,
+    iconOpened: <RiIcons.RiArrowUpSFill />,
+    subNav: [
+      {
+        title: 'Nuevo',
+        path: '/usuarios/nuevo',
         icon: <IoIcons.IoIosPaper />
       }
     ]

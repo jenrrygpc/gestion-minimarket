@@ -48,10 +48,34 @@ const getMasters = async (params, token) => {
   return response.data;
 };
 
+const getMastersByTypes = async (params, token) => {
+  console.log('token ..:', token);
+  console.log('getMastersByTypes params ..:', params);
+
+  const mastersListPromise = [];
+  params.forEach(element => {
+    mastersListPromise.push(axios.get(`${API_URL}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+      params: {
+        type: element
+      }
+    }));
+  });
+
+  const mastersList = await Promise.all(mastersListPromise);
+  console.log('mastersList ..:', mastersList);
+  const response = mastersList.map((master) => master.data);
+
+  return response.flat();
+}
+
 const masterService = {
   createMaster,
   updateMaster,
-  getMasters
+  getMasters,
+  getMastersByTypes
 };
 
 export default masterService;

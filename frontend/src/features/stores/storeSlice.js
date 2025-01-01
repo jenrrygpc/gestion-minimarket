@@ -1,22 +1,22 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import masterService from './masterService';
+import storeService from './storeService';
 
 const initialState = {
-  masters: [],
-  master: {},
+  stores: [],
+  store: {},
   isError: false,
   isSuccess: false,
   isLoading: false,
   message: ''
 };
 
-// Create new master
-export const createMaster = createAsyncThunk(
-  'masters/create',
-  async (masterData, thunkAPI) => {
+// Create new store
+export const createStore = createAsyncThunk(
+  'stores/create',
+  async (storeData, thunkAPI) => {
     try {
       const { token } = thunkAPI.getState().auth.user;
-      return await masterService.createMaster(masterData, token);
+      return await storeService.createStore(storeData, token);
     } catch (error) {
       console.log('error ..:', error);
       const message = (error.response && error.response.data
@@ -28,13 +28,13 @@ export const createMaster = createAsyncThunk(
   }
 );
 
-// Update master
-export const updateMaster = createAsyncThunk(
-  'masters/update',
-  async (masterData, thunkAPI) => {
+// Update store
+export const updateStore = createAsyncThunk(
+  'stores/update',
+  async (storeData, thunkAPI) => {
     try {
       const { token } = thunkAPI.getState().auth.user;
-      return await masterService.updateMaster(masterData, token);
+      return await storeService.updateStore(storeData, token);
     } catch (error) {
       console.log('error ..:', error);
       const message = (error.response && error.response.data
@@ -46,13 +46,13 @@ export const updateMaster = createAsyncThunk(
   }
 );
 
-// Get masters
-export const getMasters = createAsyncThunk(
-  'masters/get',
+// Get stores
+export const getStores = createAsyncThunk(
+  'stores/getPublic',
   async (params, thunkAPI) => {
     try {
       const { token } = thunkAPI.getState().auth.user;
-      return await masterService.getMasters(params, token);
+      return await storeService.getStores(params, token);
     } catch (error) {
       console.log('error ..:', error);
       const message = (error.response && error.response.data
@@ -64,13 +64,12 @@ export const getMasters = createAsyncThunk(
   }
 );
 
-// Get masters by types
-export const getMastersByTypes = createAsyncThunk(
-  'masters/getTypes',
+// Get stores public
+export const getStoresPublic = createAsyncThunk(
+  'stores/get',
   async (params, thunkAPI) => {
     try {
-      const { token } = thunkAPI.getState().auth.user;
-      return await masterService.getMastersByTypes(params, token);
+      return await storeService.getStoresPublic(params);
     } catch (error) {
       console.log('error ..:', error);
       const message = (error.response && error.response.data
@@ -82,74 +81,80 @@ export const getMastersByTypes = createAsyncThunk(
   }
 );
 
-export const masterSlice = createSlice({
-  name: 'master',
+export const storeSlice = createSlice({
+  name: 'store',
   initialState,
   reducers: {
-    reset: (state) => initialState,
-    resetCreate: (state, action) => {
-      state.isSuccess = false;
+    reset: (state) => {
+      state.isLoading = false;
       state.isError = false;
-      state.master = {};
+      state.isSuccess = false;
       state.message = '';
     },
-    setMaster: (state, action) => {
-      state.master = action.payload;
+    resetStore: (state) => {
+      state.store = {};
+    },
+    setStore: (state, action) => {
+      state.store = action.payload;
     }
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createMaster.pending, (state) => {
+      .addCase(createStore.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(createMaster.fulfilled, (state) => {
+      .addCase(createStore.fulfilled, (state) => {
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
       })
-      .addCase(createMaster.rejected, (state, action) => {
+      .addCase(createStore.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
       })
-      .addCase(updateMaster.pending, (state) => {
+      .addCase(updateStore.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(updateMaster.fulfilled, (state) => {
+      .addCase(updateStore.fulfilled, (state) => {
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
       })
-      .addCase(updateMaster.rejected, (state, action) => {
+      .addCase(updateStore.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
       })
-      .addCase(getMasters.pending, (state) => {
+      .addCase(getStores.pending, (state) => {
         //state.isLoading = true;
       })
-      .addCase(getMasters.fulfilled, (state, action) => {
+      .addCase(getStores.fulfilled, (state, action) => {
         //state.isLoading = false;
         //state.isErrorGetProduct = false; // ?
-        state.masters = action.payload
+        state.stores = action.payload
       })
-      .addCase(getMasters.rejected, (state, action) => {
+      .addCase(getStores.rejected, (state, action) => {
         //state.isLoading = false;
         //state.isErrorGetProduct = true; // ?
-        state.masters = [];
+        state.stores = [];
         //state.messageGetProduct = action.payload; // ?
       })
-      .addCase(getMastersByTypes.pending, (state) => {
-        //state.isLoading = true;
+      .addCase(getStoresPublic.pending, (state) => {
+        state.isLoading = true;
       })
-      .addCase(getMastersByTypes.fulfilled, (state, action) => {
-        state.masters = action.payload
+      .addCase(getStoresPublic.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.stores = action.payload
       })
-      .addCase(getMastersByTypes.rejected, (state, action) => {
-        state.masters = [];
+      .addCase(getStoresPublic.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.stores = [];
       })
   },
 });
 
-export const { reset, setMaster, resetCreate } = masterSlice.actions;
-export default masterSlice.reducer;
+export const { reset, setStore, resetStore } = storeSlice.actions;
+export default storeSlice.reducer;

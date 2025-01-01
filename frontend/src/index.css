@@ -43,6 +43,20 @@ h3 {
   text-align: center;
 }
 
+.container-list {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.container-list-large {
+  width: 100%;
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -76,7 +90,7 @@ h3 {
 }
 
 .heading {
-  font-size: 2rem;
+  font-size: 1.7rem;
   font-weight: 700;
   margin-bottom: 20px;
   margin-top: 20px;
@@ -116,6 +130,11 @@ h3 {
   margin: 0 auto;
 }
 
+.form-list {
+  width: 100%;
+  margin: 0 auto;
+}
+
 .form-group {
   margin-bottom: 10px;
 }
@@ -124,11 +143,31 @@ h3 {
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid #e6e6e6;
   border-radius: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   font-family: inherit;
+}
+
+.list-group input {
+  width: 50%;
+  padding: 2px;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  margin-bottom: 0px;
+  font-family: inherit;
+}
+
+.form-group3  input{
+  display: flex;
+  padding: 10px;
+  column-gap: 20px;
+  border: 1px solid #e6e6e6;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  font-family: inherit;
+  width: 70%;  
 }
 
 .form-group label {
@@ -248,6 +287,7 @@ h3 {
 
 .ticket-headings {
   font-weight: 700;
+  background: #cfcece;
 }
 
 .maestro  {
@@ -266,23 +306,67 @@ h3 {
 
 .grilla-maestro,
 .grilla-maestro-cabecera {
-  display: flex;
-  grid-template-columns: 150px 250px 70px;
+  display: grid;
+  grid-template-columns: 30% 30% 15%;
   gap: 10px;
   justify-content: space-between;  
   align-items: center;
-  margin-bottom: 3px;
-  background: #a0c2f8;
+  margin-bottom: 5px;
+  background: #dfdede;
   padding: 5px 10px;
   border-radius: 5px;
   font-size: 12px;
+  text-align: left;
 }
 
 .grilla-maestro-cabecera {
   font-weight: 900;
-  background: #8ab5fa;
+  background: #b7b3b3;
 }
 
+.listas,
+.listas-headings {
+  display: grid;
+  /*grid-template-columns: repeat(5, 1fr);*/
+  grid-template-columns: 20% 30% 30% 5%;
+  /*grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));*/
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px; /* se reduce espacio entre filas */
+  background: #f4f4f4;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.listas-headings {
+  font-weight: 700;
+  background: #cfcece;
+}
+
+.listas-dynamics,
+.listas-headings-dynamics {
+  display: grid;
+  /*grid-template-columns: repeat(5, 1fr);*/
+  /*grid-template-columns: 20% 30% 30% 5%;*/
+  grid-template-columns: 10% 30% repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px; /* se reduce espacio entre filas */
+  background: #f4f4f4;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.listas-headings-dynamics {
+  font-weight: 700;
+  background: #cfcece;
+}
 
 .status {
   background-color: #333;
@@ -438,12 +522,9 @@ footer {
 .td-v-align-top {
   height: 50px;
   vertical-align: top;
+  text-align: right;
 }
 
-.td-v-align-top {
-  height: 50px;
-  vertical-align: top;
-}
 
 .td-t-align-left {
   height: 50px;
@@ -508,3 +589,120 @@ footer {
 .pagination > li:first-child > a, .pagination > li:first-child > span, .pagination > li:last-child > a, .pagination > li:last-child > span{
   border-radius: unset
 }
+
+/*Estilos para pantalla de ventas*/
+.ventas  {
+  display: grid;
+  /*grid-template-columns: repeat(2, 1fr);*/
+  grid-template-columns: 1.3fr 1fr;
+  gap: 10px;
+  justify-content: space-between;
+  /*align-items: center;*/
+  margin-bottom: 5px; /* se reduce espacio entre filas */
+  background: #f4f4f4;
+  padding: 20px 50px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.venta {
+  height: 10;
+}
+
+.productos {
+  height: 330px;
+  overflow: auto;
+}
+
+.productos-inventario {
+  height: 250px;
+  overflow: auto;
+}
+
+.productos-detalle-grid,
+.productos-cabecera-grid {  
+  display: grid;
+  grid-template-columns: 60% 15% 15% 10%;
+  gap: 10px;
+  justify-content: space-between;
+  /*padding: 10px 100px 10px 10px;*/
+  /*align-items: center;*/
+  margin-bottom: 5px; /* se reduce espacio entre filas */
+  /*background: #f4f4f4;*/
+  background: #a0c2f8;
+  padding: 5px 30px 5px 20px;
+  border-radius: 5px;
+}
+
+
+.productos-cabecera-grid {
+  font-weight: 900;
+  background: #8ab5fa;
+}
+
+
+
+.teclado {  
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  grid-template-rows: auto auto auto auto;
+  gap: 10px;
+  justify-content: stretch;
+  /*padding: 10px 100px 10px 10px;*/
+  /*align-items:flex-start;*/
+  margin-bottom: 5px; /* se reduce espacio entre filas */
+  /*background: #f4f4f4;*/
+  background: #e5ebf0;
+  padding: 20px;
+  border-radius: 5px;
+  margin: 40px;
+}
+
+.btn-enter {
+  grid-column:  4/5;
+  grid-row:  3/5;
+}
+
+.totales  {
+  display: grid;
+  grid-template-columns: 10fr 1fr;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 5px; /* se reduce espacio entre filas */
+  background: #f4f4f4;
+  padding: 20px;
+  border-radius: 5px;  
+  font-size: 12px;
+}
+
+.totales-item  {
+  text-align: right;
+}
+
+/* Ini: disenio para cuadro de busqueda */
+.search-container {
+  position: relative;
+}
+
+.search-results {
+  position: absolute; /*este atributo hace que los otros componentes permanezcan en su posición*/
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.search-result-item:hover {
+  background: #f0f0f0;
+}
+
+/* Fin: disenio para cuadro de busqueda */

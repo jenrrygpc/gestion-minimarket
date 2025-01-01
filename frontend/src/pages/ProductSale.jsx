@@ -38,7 +38,6 @@ const LoginStyle2 = styled.li`
 
 const initialState = {
   code: '',
-  description: '',
   measure: '',
   price: 0,
   stock: 0,
@@ -445,7 +444,7 @@ function ProductSale() {
                   name='requiresParameter'
                   //value={requiresParameter}
                   checked={requiresParameter}
-                  defaultChecked={requiresParameter}
+                  //defaultChecked={requiresParameter}
                   onChange={onChangeCheck}
                   placeholder='Requiere parametro adicional' />
               </td>

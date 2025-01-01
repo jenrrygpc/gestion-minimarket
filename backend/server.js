@@ -20,8 +20,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/products/', require('./routes/productRoutes'));
 app.use('/api/measures/', require('./routes/measureRoutes'));
+app.use('/api/profiles/', require('./routes/profileRoutes'));
 
 app.use('/api/masters/', require('./routes/masterRoutes'));
+app.use('/api/stores/', require('./routes/storeRoutes'));
+app.use('/api/inventories/', require('./routes/inventoryRoutes'));
+app.use('/api/reasons-transaction/', require('./routes/reasonTransactionRoutes'));
 
 // Server Frontend
 console.log('antes de servir');

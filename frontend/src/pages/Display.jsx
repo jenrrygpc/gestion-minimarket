@@ -55,7 +55,7 @@ function Category() {
   useEffect(() => {
     console.log('useEffect inicial ...');
     dispatch(getMasters({
-      type: 'CATEGORIAS'
+      type: 'PRESENTACION'
     }));
     refInputName.current.focus();
   }, []);
@@ -91,7 +91,7 @@ function Category() {
 
 
       dispatch(getMasters({
-        type: 'CATEGORIAS'
+        type: 'PRESENTACION'
       }));
 
 
@@ -143,7 +143,7 @@ function Category() {
         }));
       } else {
         dispatch(createMaster({
-          type: 'CATEGORIAS',
+          type: 'PRESENTACION',
           name,
           description,
           enabled
@@ -204,7 +204,7 @@ function Category() {
     <div className="container">
       <section className="heading">
         <p>
-          Mantenimiento de Categoría
+          Mantenimiento de Presentación
         </p>
         <hr></hr>
       </section>

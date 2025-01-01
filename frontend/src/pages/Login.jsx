@@ -3,16 +3,21 @@ import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import { FaSignInAlt } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
-import { login, reset } from "../features/auth/authSlice";
+import { login, reset, setStore } from "../features/auth/authSlice";
+import { getStoresPublic } from "../features/stores/storeSlice";
 import Spinner from '../components/Spinner';
 
-function Login() {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+const initialState = {
+  email: '',
+  password: '',
+  store: ''
+}
 
-  const { email, password } = formData;
+function Login() {
+
+  const [formData, setFormData] = useState(initialState);
+
+  const { email, password, store } = formData;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -20,17 +25,37 @@ function Login() {
     (state) => state.auth
   );
 
+  const { stores } = useSelector(
+    (state) => state.store
+  );
+  initialState.store = (stores[0] || {}).id
+
+  console.log('stores ..:', stores);
+  console.log('store ..:', store);
+
   useEffect(() => {
     if (isError) {
       toast.error(message);
+      navigate('/login');
     }
 
     if (isSuccess || user) {
+      console.log('stores ..:', stores);
+      console.log('store ok ..:', store);
+
+      dispatch(setStore(stores.find((s) => s.id === store)));
+      
       navigate('/');
     }
 
     dispatch(reset());
   }, [isError, isSuccess, user, message, navigate, dispatch]);
+
+  // useEffect usado para cargar la data al inicio. (solo se ejecuta la primera vez)
+  useEffect(() => {
+    console.log('useEffect 2 ...');
+    dispatch(getStoresPublic());
+  }, []);
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -44,9 +69,12 @@ function Login() {
 
     const userData = {
       email,
-      password
+      password,
+
     };
-    dispatch(login(userData));
+
+    console.log('userData ..:', userData);
+     dispatch(login(userData));
   };
 
   if (isLoading) {
@@ -57,9 +85,9 @@ function Login() {
     <div className="container">
       <section>
         <h1>
-          <FaSignInAlt /> Login
+          <FaSignInAlt /> Inicio de Sesión
         </h1>
-        <p>Please login to get support</p>
+        <p>Por favor iniciar sesión para usar el sistema</p>
       </section>
 
       <section className="form">
@@ -72,7 +100,7 @@ function Login() {
               name='email'
               value={email}
               onChange={onChange}
-              placeholder='Enter your email'
+              placeholder='Ingrese su correo'
               required />
           </div>
           <div className="form-group">
@@ -83,11 +111,21 @@ function Login() {
               name='password'
               value={password}
               onChange={onChange}
-              placeholder='Enter your password'
+              placeholder='Ingrese su clave'
               required />
           </div>
+
           <div className="form-group">
-            <button className="btn btn-block">Submit</button>
+            <select name="store" id="store" onChange={onChange}>
+              {
+                stores.map((store) => {
+                  return <option key={store.id} id={store.id} value={store.id}>{store.name}</option>
+                })
+              }
+            </select>
+          </div>
+          <div className="form-group">
+            <button className="btn btn-block">Enviar</button>
           </div>
         </form>
       </section>

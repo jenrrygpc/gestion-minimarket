@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const API_URL = '/api/products/';
+const API_URL = '/api/inventories/';
 
-//Create new product
-const createProduct = async (productData, { token, store }) => {
+//Create new inventory
+const registerInventory = async (inventoryData, { token, store }) => {
   console.log('token ..:', token);
-  console.log('productData ..:', productData);
+  console.log('inventoryData ..:', inventoryData);
   const config = {
     headers: {
       Authorization: `Bearer ${token}`
@@ -14,7 +14,7 @@ const createProduct = async (productData, { token, store }) => {
 
   const response = await axios.post(API_URL, {
     payload: {
-      ...productData,
+      ...inventoryData,
       store: store.id
     }
   }, config);
@@ -23,24 +23,24 @@ const createProduct = async (productData, { token, store }) => {
   return response.data;
 };
 
-//Update product
-const updateProduct = async (productData, token) => {
+//Update inventory
+const updateInventory = async (inventoryData, token) => {
   console.log('token ..:', token);
-  console.log('productData ..:', productData);
+  console.log('inventoryData ..:', inventoryData);
   const config = {
     headers: {
       Authorization: `Bearer ${token}`
     }
   };
 
-  const response = await axios.put(`${API_URL}${productData.id}`, { payload: productData }, config);
+  const response = await axios.put(`${API_URL}${inventoryData.id}`, { payload: inventoryData }, config);
   console.log('response ..:', response);
 
   return response.data;
 };
 
-//Get product by code
-const getProduct = async (params, { token, store }) => {
+//Get inventory by code/
+const getInventory = async (params, { token, store }) => {
   console.log('token ..:', token);
   const config = {
     headers: {
@@ -51,7 +51,7 @@ const getProduct = async (params, { token, store }) => {
       store: store.id
     }
   };
-  console.log('getProduct params ..:', params);
+  console.log('getInventory params ..:', params);
   const response = await axios.get(API_URL, config);
   console.log('response ..:', response);
 
@@ -59,9 +59,9 @@ const getProduct = async (params, { token, store }) => {
 };
 
 const productService = {
-  createProduct,
-  updateProduct,
-  getProduct
+  registerInventory,
+  updateInventory,
+  getInventory
 };
 
 export default productService;

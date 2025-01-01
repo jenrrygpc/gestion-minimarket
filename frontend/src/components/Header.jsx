@@ -61,6 +61,8 @@ const LoginStyle = styled.ul`
 
 const LoginStyle2 = styled.li`
   margin-left: 20px;
+  margin-right: 10px;
+  font-weight: bold;
 `;
 
 
@@ -68,7 +70,10 @@ function Header() {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, sidebar, isError, message } = useSelector((state) => state.auth);
+  const { user, sidebar, isError, message, store } = useSelector((state) => state.auth);
+
+  console.log('user Header ..:', user);
+  console.log('store Header ..:', store);
 
   const onLogout = () => {
     dispatch(logout());
@@ -116,10 +121,15 @@ function Header() {
             user ? (
               <>
                 <LoginStyle2>
-                  User: {user.name}
+                  Sucursal:
                 </LoginStyle2>
+                {store?.name || ''}
                 <LoginStyle2>
-                  <button className='btn' onClick={onLogout}><FaSignOutAlt /> Logout</button>
+                  Bienvenid@:
+                </LoginStyle2>
+                {user.name}
+                <LoginStyle2>
+                  <button className='btn' onClick={onLogout}><FaSignOutAlt /> Salir</button>
                 </LoginStyle2>
 
               </>
@@ -127,12 +137,7 @@ function Header() {
               <>
                 <LoginStyle2>
                   <Link to='/login'>
-                    <FaSignInAlt /> Login
-                  </Link>
-                </LoginStyle2>
-                <LoginStyle2>
-                  <Link to='/register'>
-                    <FaUser /> Register
+                    <FaSignInAlt /> Iniciar
                   </Link>
                 </LoginStyle2>
 
