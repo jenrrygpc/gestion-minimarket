@@ -11,13 +11,13 @@ const createInventory = asyncHandler(async (req, res) => {
 
     const { payload: { store,
         transactionType,
-        reason,
+        reasonTransaction,
         document, transactionDate,
         products } } = req.body;
 
-    if (!products || !transactionType || !reason) {
+    if (!products || !transactionType || !reasonTransaction) {
         res.status(400);
-        throw new Error('Please include products, transactionType and reason');
+        throw new Error('Please include products, transactionType and reasonTransaction');
     }
 
     // Validate products
@@ -31,7 +31,7 @@ const createInventory = asyncHandler(async (req, res) => {
             store,
             product: product.productId,
             transactionType,
-            reason,
+            reasonTransaction,
             quantity: product.quantity,
             price: product.price || 0,
             cost: product.cost || 0,
@@ -47,30 +47,6 @@ const createInventory = asyncHandler(async (req, res) => {
 
     res.status(201).json(inventory);
 
-    //validar productos
-    /*
-    const inventory = await Inventory.create({
-        store,
-        product,
-        transactionType,
-        reason,
-        quantity,
-        price,
-        cost,
-        document,
-        transactionDate,
-        user: req.id,
-    });
-
-    console.log('inventory ..:', inventory);
-
-    if (!inventory) {
-        res.status(400);
-        throw new Error('Inventory validation failed');
-    }
-
-    res.status(201).json(inventory);
-    */
 });
 
 module.exports = {

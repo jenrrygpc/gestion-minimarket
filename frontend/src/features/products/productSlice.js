@@ -129,14 +129,17 @@ export const productSlice = createSlice({
       .addCase(getProduct.fulfilled, (state, action) => {
         //state.isLoading = false;
         //state.isErrorGetProduct = false;
-        console.log('action.payload ..: ', action.payload);
-        if (Array.isArray(action.payload)) {
-          console.log('Array.isArray ..: ', action.payload);
-          state.products = action.payload
+        const { payload } = action;
+        console.log('payload ..: ', payload);
+        if (Array.isArray(payload)) {
+          console.log('Array.isArray ..: ', payload);
+          state.products = payload
+        } else if (payload !== null && typeof payload === 'object') {
+          console.log('isObject ..: ', payload);
+          state.products = [payload];
         } else {
-          console.log('isObject ..: ', action.payload);
-          //state.product = action.payload;
-          state.products = [action.payload];
+          console.log('else ..: ', payload);
+          state.products = [];
         }
       })
       .addCase(getProduct.rejected, (state, action) => {

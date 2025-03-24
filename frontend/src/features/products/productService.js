@@ -39,6 +39,22 @@ const updateProduct = async (productData, token) => {
   return response.data;
 };
 
+//Update products
+const updateProducts = async (productData, token) => {
+  console.log('token ..:', token);
+  console.log('productData ..:', productData);
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+
+  const response = await axios.patch(`${API_URL}update-stock`, { payload: productData }, config);
+  console.log('response ..:', response);
+
+  return response.data;
+};
+
 //Get product by code
 const getProduct = async (params, { token, store }) => {
   console.log('token ..:', token);
@@ -61,7 +77,8 @@ const getProduct = async (params, { token, store }) => {
 const productService = {
   createProduct,
   updateProduct,
-  getProduct
+  getProduct,
+  updateProducts
 };
 
 export default productService;

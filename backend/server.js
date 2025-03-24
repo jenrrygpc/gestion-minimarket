@@ -27,6 +27,9 @@ app.use('/api/stores/', require('./routes/storeRoutes'));
 app.use('/api/inventories/', require('./routes/inventoryRoutes'));
 app.use('/api/reasons-transaction/', require('./routes/reasonTransactionRoutes'));
 
+app.use('/api/pos/', require('./routes/posRoutes'));
+app.use('/api/pos-shift/', require('./routes/posShiftRoutes'));
+
 // Server Frontend
 console.log('antes de servir');
 if (process.env.NODE_ENV === 'production') {

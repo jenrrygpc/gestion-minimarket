@@ -15,19 +15,14 @@ export const SidebarData = [
 
     subNav: [
       {
+        title: 'Abrir/Cerrar POS',
+        path: '/ventas/turno',
+        icon: <IoIcons.IoIosPaper />
+      },
+      {
         title: 'Venta por código',
         path: '/ventas/venta',
         icon: <FcIcons.FcSalesPerformance />
-      },
-      {
-        title: 'Cierre de caja',
-        path: '/ventas/cierre',
-        icon: <IoIcons.IoIosPaper />
-      },
-      {
-        title: 'Devolución',
-        path: '/ventas/devolucion',
-        icon: <IoIcons.IoIosPaper />
       }
     ]
   },
@@ -135,6 +130,11 @@ export const SidebarData = [
       {
         title: 'Tienda',
         path: '/maestros/tienda',
+        icon: <IoIcons.IoIosPaper />
+      },
+      {
+        title: 'Punto de venta',
+        path: '/maestros/puntoventa',
         icon: <IoIcons.IoIosPaper />
       }
     ]

@@ -13,6 +13,10 @@ const Message = (message, type = 'success', ) => {
   if (type === 'error') {
     toast.error(message, options);
     return;
+  }
+  if (type === 'info') {
+    toast.info(message, options);
+    return;
   }  
 };
 

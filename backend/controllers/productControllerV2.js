@@ -101,15 +101,6 @@ const getProduct = asyncHandler(async (req, res) => {
             store: store,
             code: code,
         });
-
-        if (!product) {
-            // se retornar un arreglo vacio.
-            product = [];
-            /*
-            res.status(404);            
-            throw new Error('Producto para venta no disponible');
-            */
-        }
     } else {
         product = await Product.find({
             store: store,
@@ -123,9 +114,40 @@ const getProduct = asyncHandler(async (req, res) => {
     res.status(200).json(product);
 });
 
+const updateProducts = asyncHandler(async (req, res) => {
+
+    console.log('updateProducts ..:', req.body);
+
+    const { payload: products } = req.body;
+
+    const updateProducts = [];
+    for (const product of products) {
+        const { id, quantity, price, cost } = product;
+        const productFound = await Product.findById(id);
+
+        if (productFound) {
+            const updatedProduct = await Product.findByIdAndUpdate(id,
+                {
+                    stock: productFound.stock + quantity,
+                    price,
+                    cost,
+                    updatedUser: req.id
+                },
+                {
+                    new: true
+                });
+            updateProducts[updateProducts.length] = updatedProduct;
+        } else {
+            console.log('Product not found ..:', id);
+        }
+    }
+    res.status(200).json({ payload: updateProducts });
+});
+
 
 module.exports = {
     createProduct,
     updateProduct,
+    updateProducts,
     getProduct
 };

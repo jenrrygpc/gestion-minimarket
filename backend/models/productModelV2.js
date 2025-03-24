@@ -35,6 +35,9 @@ const productSchema = mongoose.Schema({
     type: Number,
     required: [true, 'Please enter a price']
   },
+  cost: {
+    type: Number
+  },
   stock: {
     type: Number,
     default: 0
@@ -59,6 +62,10 @@ const productSchema = mongoose.Schema({
     type: Boolean,
     default: true
   },
+  updatedUser: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 }, {
   timestamps: true
 });

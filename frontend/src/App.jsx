@@ -10,7 +10,9 @@ import Product from "./pages/Product";
 import Category from "./pages/Category";
 import Display from "./pages/Display";
 import Store from "./pages/Store";
+import Pos from "./pages/Pos";
 import Ventas from "./pages/Ventas";
+import PosShift from "./pages/PosShift";
 import Inventory from "./pages/Inventory";
 
 
@@ -30,7 +32,9 @@ function App() {
             <Route path = '/maestros/categoria' element = {<Category />} />
             <Route path = '/maestros/presentacion' element = {<Display />} />
             <Route path = '/maestros/tienda' element = {<Store />} />
+            <Route path = '/maestros/puntoventa' element = {<Pos />} />
             <Route path = '/ventas/venta' element = {<Ventas />} />
+            <Route path = '/ventas/turno' element = {<PosShift />} />
             <Route path = '/inventario/nuevo' element = {<Inventory />} />
           </Routes>
         </div>

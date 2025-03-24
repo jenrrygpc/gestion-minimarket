@@ -1,5 +1,5 @@
 /* React */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 
 /* React Redux */
@@ -15,14 +15,19 @@ import { TbNewSection } from "react-icons/tb";
 /* feature stores */
 import { getRTs } from "../features/reasons-transaction/reasonTransactionSlice";
 //import { getProduct } from "../features/products/productSlice";
-import { getProduct, registerInventory } from "../features/inventories/inventorySlice";
+import {
+  getProduct,
+  registerInventory,
+  reset,
+  updateProducts
+} from "../features/inventories/inventorySlice";
 
 /* components */
 import Spinner from '../components/Spinner';
 import Message from '../components/Message';
 
 const initialState = {
-  transactionType: '',
+  transactionType: 'ENTRADA',
   reasonTransaction: '',
   referenceDocument: '',
   supplier: '',
@@ -31,6 +36,8 @@ const initialState = {
 
 //const Inventory = () => {
 function Inventory() {
+
+  const refInputDescBusqueda = useRef(null);
 
   //state para establecer el texto de busqueda.
   const [productSearch, setProductSearch] = useState('');
@@ -69,22 +76,28 @@ function Inventory() {
   // useEffect to handle items by page.
   useEffect(() => {
     console.log('useEffect product ...', product);
-    if (!product.code) {
-      Message('Producto no encontrado!', 'error');
-      return;
+    if (product) {
+
+      if (!product.code) {
+        Message('Producto no encontrado!', 'error');
+        return;
+      }
+
+      setFormData((prevState) => ({
+        ...prevState,
+        productsInventory: [...prevState.productsInventory, {
+          id: product._id,
+          code: product.code,
+          description: product.description,
+          quantity: 1,
+          cost: product.cost || product.price,
+          price: product.price,
+          originalPrice: product.price,
+        }]
+      }));
     }
 
-    setFormData((prevState) => ({
-      ...prevState,
-      productsInventory: [...prevState.productsInventory, {
-        id: product._id,
-        code: product.code,
-        description: product.description,
-        quantity: 1,
-        cost: product.price,
-        price: product.price,
-      }]
-    }));
+
 
   }, [product]);
 
@@ -105,6 +118,36 @@ function Inventory() {
     //setShowResults(true);
 
   }, [products]);
+
+  useEffect(() => {
+    console.log('useEffect 1 ...', isError, isSuccess, product, message);
+    if (isError) {
+      Message(message, 'error');
+    }
+
+    if (isSuccess) {
+      Message('Inventario actualizado exitosamente!');
+      // actualizar stock y price en el listado de productos.
+      handleStockAndPriceUpdate(productsInventory);
+      reiniciar();
+    }
+  }, [isError, isSuccess, message, navigate, dispatch]);
+
+  const handleStockAndPriceUpdate = () => {
+    console.log('productsInventory 1 ...', productsInventory);
+
+
+    dispatch(updateProducts(
+      productsInventory.map((product) => ({
+        id: product.id,
+        quantity: Number(product.quantity),
+        price: Number(product.price),
+        cost: Number(product.cost),
+      }))
+    ))
+
+
+  }
 
   /*
   useEffect(() => {
@@ -181,6 +224,7 @@ function Inventory() {
         setShowResults(true);
       }
     } else {
+      setSearchResults([]);
       setShowResults(false);
     }
   };
@@ -228,16 +272,28 @@ function Inventory() {
     console.log('referenceDocument ...', referenceDocument);
     console.log('productsInventory ...', productsInventory);
 
+    if (productsInventory.length === 0) {
+      Message('No hay productos para registrar!', 'info');
+      refInputDescBusqueda.current.focus();
+      return
+    }
+
+    if (productsInventory.find((product) => product.cost > product.price)) {
+      Message('El costo no puede ser mayor al precio!', 'error');
+      return
+    }
+
     dispatch(registerInventory({
       transactionType,
-      reason: reasonTransaction,
+      reasonTransaction,
       document: referenceDocument,
       products: productsInventory.map((product) => {
         return {
           productId: product.id,
           quantity: product.quantity,
           price: product.price,
-          cost: product.cost
+          cost: product.cost,
+          originalPrice: product.originalPrice
         }
       })
     }));
@@ -245,13 +301,10 @@ function Inventory() {
 
   const reiniciar = () => {
     setFormData(initialState);
+    dispatch(reset());
+    refInputDescBusqueda.current.focus();
   };
 
-  /*
-  if (isLoading) {
-    return <Spinner />
-  }
-    */
 
   // Define the event handlers
   const handlePlusClick = (product) => {
@@ -305,12 +358,13 @@ function Inventory() {
         setFormData((prevState) => ({
           ...prevState,
           productsInventory: productsInventory.map((p) =>
-            p.code === product.code ? { ...p, cost: p.price } : p
+            p.code === product.code ? { ...p, cost: p.originalPrice } : p
           )
         }));
         Message('El costo no puede ser vacío o no numérico!', 'error');
       }
 
+      /*
       if (value > product.price) {
         setFormData((prevState) => ({
           ...prevState,
@@ -320,6 +374,7 @@ function Inventory() {
         }));
         Message('El costo no puede ser mayor al precio!', 'error');
       }
+        */
 
 
     }
@@ -330,12 +385,13 @@ function Inventory() {
         setFormData((prevState) => ({
           ...prevState,
           productsInventory: productsInventory.map((p) =>
-            p.code === product.code ? { ...p, price: p.price } : p
+            p.code === product.code ? { ...p, price: p.originalPrice } : p
           )
         }));
         Message('El costo no puede ser vacío o no numérico!', 'error');
       }
 
+      /*
       if (value < product.cost) {
         setFormData((prevState) => ({
           ...prevState,
@@ -345,6 +401,7 @@ function Inventory() {
         }));
         Message('El precio no puede ser menor al costo!', 'error');
       }
+        */
 
     }
 
@@ -366,9 +423,6 @@ function Inventory() {
 
     const productFound = productsInventory.find((p) => p.code === product.code);
     console.log('productFound ..:', productFound);
-
-
-
 
     if (productFound) {
 
@@ -396,15 +450,21 @@ function Inventory() {
           quantity: 1,
           cost: product.price,
           price: product.price,
+          originalPrice: product.price,
         }]
       }));
 
     }
 
-    setProductSearch('');
     setSearchResults([]);
     setShowResults(false);
+    setProductSearch('');
+    refInputDescBusqueda.current.focus();
   };
+
+  if (isLoading) {
+    return <Spinner />
+  }
 
   return (
 
@@ -517,13 +577,15 @@ function Inventory() {
                       onChange={onChangeSearch}
                       onKeyDown={onKeyDownSearch}
                       onFocus={() => {
+                        console.log('searchResults ...', searchResults);
                         if (searchResults.length > 0) {
+                          console.log('on focus ...', showResults);
                           setShowResults(true)
                         }
                       }}
                       onBlur={() => setTimeout(() => setShowResults(false), 200)}
                       placeholder='Busqueda de productos...'
-                      //ref={refInputDescBusqueda}
+                      ref={refInputDescBusqueda}
                       required />
 
                     {showResults && (
@@ -565,9 +627,9 @@ function Inventory() {
             <div>Código</div>
             <div>Descripción</div>
             <div>Cantidad</div>
-            <div>Costo Unidad</div>
-            <div>Precio Unidad</div>
-            <div>Subtotal</div>
+            <div>Costo</div>
+            <div>Precio</div>
+            <div>Costo Total</div>
             <div>Eliminar</div>
           </div>
 

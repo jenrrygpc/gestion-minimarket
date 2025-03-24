@@ -19,7 +19,7 @@ const inventorySchema = mongoose.Schema({
     required: [true, 'Ingresar tipo de transacción.'],
     enum: ['ENTRADA', 'SALIDA']
   },
-  reason: {
+  reasonTransaction: {
     type: String,
     required: [true, 'Ingresar motivo de la transacción.']
   },

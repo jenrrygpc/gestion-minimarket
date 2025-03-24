@@ -2,15 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from 'react-router-dom';
 import { AiOutlineEnter } from "react-icons/ai";
-
-
-
 import { FaBackspace } from "react-icons/fa";
-//import ReactPaginate from 'react-paginate';
 
 import { useSelector, useDispatch } from "react-redux";
 
 import { createProduct, getProduct, reset } from "../features/products/saleSlice";
+import { getPosShift, getValidPosShift } from "../features/posShift/posShiftSlice";
 /*
 import {
   reset, getMasters, setMaster,
@@ -31,6 +28,7 @@ function Category() {
 
 
   const [formData, setFormData] = useState(initialState);
+  const [modalIsOpen, setModalIsOpen] = useState(false); // Estado para manejar la visibilidad del modal
 
   //useRef is to focus into the component.
   const refInputCode = useRef(null);
@@ -47,10 +45,51 @@ function Category() {
     (state) => state.sale
   );
 
+  const { posShiftList } = useSelector(
+    (state) => state.posShift
+  );
 
+  console.log('posShiftList ..:', posShiftList);
+
+  // useEffect usado para cargar la data al inicio. (solo se ejecuta la primera vez)
+  useEffect(() => {
+    console.log('useEffect 0 ...');
+    //Get user from localstorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    console.log('get local storage', user);
+    const store = JSON.parse(localStorage.getItem('store'));
+    console.log('get store', store);
+    const posShift = JSON.parse(localStorage.getItem('PosShift'));
+    console.log('get posShift', posShift);
+    if (!posShift) {
+      // consultar caja abierta en el backend
+      dispatch(getValidPosShift({
+        status: 'ABIERTO',
+      }));
+      // si no hay caja abierta, abrir caja
+
+    }
+    //dispatch(getProduct());
+    //dispatch(getMeasures());
+    //dispatch(getMastersByTypes(['PRESENTACION', 'CATEGORIA']));
+  }, []);
 
   useEffect(() => {
-    console.log('useEffect 1 ...', isError, isSuccess, message);
+
+    console.log('posShiftList ...', posShiftList);
+
+    if (posShiftList.length > 0) {
+      localStorage.setItem('PosShift', JSON.stringify(posShiftList[0]));
+    } else {
+      setModalIsOpen(true); // Mostrar modal si no hay ninguna caja abierta
+    }
+
+  }, [posShiftList]);
+
+
+  /*
+  useEffect(() => {
+    console.log('useEffect 2 ...', isError, isSuccess, message);
     if (isError) {
       refInputCode.current.focus();
       toast.error(message);
@@ -64,27 +103,8 @@ function Category() {
 
     console.log('product 1 ...', product);
     console.log('shoppingCart 1 ...', shoppingCart);
-    // Redirect to the same page
-    /*
-    if (isSuccess) {
-      dispatch(reset());
-      setFormData(initialState);
-      navigate('/productos/venta');
-      if (product._id) {
-        toast.success('Producto Actualizado');
-      } else {
-        toast.success('Producto registrado');
-      }
-
-      setDisableInputCode(false);
-
-      refInputCode.current.focus();
-    }
-    */
-    //    if (measures.length === 0) {
-    //    dispatch(getMeasures())
-    //  }
   }, [isError, isSuccess, message, navigate, dispatch]);
+  */
 
 
   const onChangeCode = (e) => {
@@ -105,6 +125,14 @@ function Category() {
       dispatch(getProduct({ code: e.target.value }));
     }
   };
+
+    const closeModal = () => {
+      setModalIsOpen(false);
+      //setFormData(initialState);
+      // validar si se deberia limpiar todo el initialState
+      //dispatch(reset());
+      //dispatch(resetPos());
+    };
 
 
 
@@ -137,13 +165,13 @@ function Category() {
 
 
         <div className="productos-cabecera-grid">
-            <div>Descripción</div>
-            <div>Cantidad</div>
-            <div>Precio</div>
-            <div>Eliminar</div>
-          </div>
+          <div>Descripción</div>
+          <div>Cantidad</div>
+          <div>Precio</div>
+          <div>Eliminar</div>
+        </div>
         <div className="productos">
-          
+
           <div className="productos-detalle-grid">
             <div>Agua mineral San Luis 100ml - Sin Gas</div>
             <div>2 UN</div>
@@ -264,6 +292,76 @@ function Category() {
 
 
       </div>
+
+      <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStyles} contentLabel='Nuevo POS'>
+        <h3>Apertura de Punto de Venta</h3>
+        <hr></hr>
+
+        <button className='btn-close' onClick={closeModal}>
+          X
+        </button>
+        <br></br>
+
+        <section className="form">
+          <form onSubmit={onSubmit}>
+            <div className="form-group">
+              <table style={{ width: '100%' }}>
+                <tbody>
+                  
+                <tr>
+                    <td>
+                      <label htmlFor="store">Pos disponibles ..:</label>
+                    </td>
+                    <td>
+
+                      <select
+                        className='form-control'
+                        id='pointOfSale'
+                        name='pointOfSale'
+                        value={pointOfSaleId}
+                        onChange={handleStoreChange}
+                        required>
+                        {
+                          pointsOfSale.map((pointOfSale) => {
+                            return <option key={pointOfSale._id} id={pointOfSale._id} value={pointOfSale._id}>{pointOfSale.name}</option>
+                          })
+                        }
+                      </select>
+
+                    </td>
+                  </tr>
+                  
+                  <tr>
+                    <td>
+                      <label htmlFor="montoInicial">Monto inicial ..:</label>
+                    </td>
+                    <td>
+
+                      <input
+                        type='text'
+                        className='form-control'
+                        id='montoInicial'
+                        name='montoInicial'
+                        value={montoInicial}
+                        onChange={onChange}
+                        placeholder='Ingrese monto inicial'
+                        required />
+
+                    </td>
+                  </tr>
+                  
+
+
+                </tbody>
+              </table>
+            </div>
+            <div className="form-group">
+              <button className="btn btn-block">{pos._id ? 'Actualizar' : 'Registrar'}</button>
+            </div>
+          </form>
+        </section>
+
+      </Modal>
     </div>
 
 

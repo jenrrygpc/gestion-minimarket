@@ -9,6 +9,8 @@ import saleReducer from '../features/products/saleSlice';
 import userReducer from '../features/auth/userSlice';
 import inventoryReducer from '../features/inventories/inventorySlice';
 import reasonTransactionReducer from '../features/reasons-transaction/reasonTransactionSlice';
+import posReducer from '../features/pos/posSlice';
+import posShiftReducer from '../features/posShift/posShiftSlice';
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +23,8 @@ export const store = configureStore({
     user: userReducer,
     store: storeReducer,
     inventory: inventoryReducer,
-    reasonTransaction: reasonTransactionReducer
+    reasonTransaction: reasonTransactionReducer,
+    pos: posReducer,
+    posShift: posShiftReducer
   },
 });
