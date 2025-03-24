@@ -1,0 +1,37 @@
+{
+	"_id": "GTRG56485tu458tu4545",
+	"barcode": "5901234123457",
+	"productName": "Aceite Primor",
+	"productDescription": "Aceite Primor de 900 ml",
+	"measure": "UN",
+	"price": 11.90,
+	"discountRate": 2
+	
+}
+
+{
+	"_id": "FDERGERTG5455645",
+	"purchaseCode": "1",
+	"documentType": "Boleta de venta",
+	"products":[
+		{
+			"productCode": "GTRG56485tu458tu4545",
+			"salePrice": 11.90,
+			"quantity": 2,
+			"total": 22.80,			
+			
+		},
+		{
+			"productCode": "GTERFRFR7787",
+			"salePrice": 5.50,
+			"quantity": 1,
+			"total": 11.0,
+			
+		}
+	],
+	
+	"tax": 5.16,
+	"subTotal": 28.64,
+	"totalAmount": 33.80
+	
+}
