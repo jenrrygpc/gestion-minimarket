@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 
 const User = require('../models/userModel');
 const Pos = require('../models/posModel');
+const PosShift = require('../models/posShiftModel');
 
 // @desc    Create pos
 // @route   POST /api/pos
@@ -103,8 +104,23 @@ const updatePos = asyncHandler(async (req, res) => {
 
 });
 
+const getAvailablePos = asyncHandler(async (req, res) => {
+    // obtener todos los POS disponibles en la tienda.
+    const allPos = await Pos.find({ store: req.params.storeId });
+
+    // obtener todos los POS que están abiertos
+    const openPos = await Pos   Shift.find({ store: req.params.storeId, status: 'ABIERTO' });
+
+    // filtrar los POS disponibles
+    const availablePos = allPos.filter(pos => !openPos.some(open => open._id.toString() === pos._id.toString()));
+
+    res.status(200).json(availablePos);
+
+});
+
 module.exports = {
     createPos,
     getPos,
-    updatePos
+    updatePos,
+    getAvailablePos
 };

@@ -7,7 +7,8 @@ const initialState = {
   isError: false,
   isSuccess: false,
   isLoading: false,
-  message: ''
+  message: '',
+  availablePos: [],
 };
 
 // Create new pos
@@ -55,6 +56,27 @@ export const getPos = createAsyncThunk(
     try {
       const { token } = thunkAPI.getState().auth.user;
       return await posService.getPos(params, token);
+    } catch (error) {
+      console.log('error ..:', error);
+      const message = (error.response && error.response.data
+        && error.response.data.message) || error.message
+        || error.toString();
+
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// Get pos public
+export const getAvailablePos = createAsyncThunk(
+  'pos/getAvailable',
+  async (params, thunkAPI) => {
+    try {
+      const { user, store } = thunkAPI.getState().auth;
+      const { token } = user;
+      const { id } = store;
+      params.storeId = id;
+      return await posService.getAvailablePos(params, token);
     } catch (error) {
       console.log('error ..:', error);
       const message = (error.response && error.response.data
@@ -123,6 +145,20 @@ export const posSlice = createSlice({
         //state.isLoading = false;
         //state.isErrorGetProduct = true; // ?
         state.posList = [];
+        //state.messageGetProduct = action.payload; // ?
+      })
+      .addCase(getAvailablePos.pending, (state) => {
+        //state.isLoading = true;
+      })
+      .addCase(getAvailablePos.fulfilled, (state, action) => {
+        //state.isLoading = false;
+        //state.isErrorGetProduct = false; // ?
+        state.availablePos = action.payload
+      })
+      .addCase(getAvailablePos.rejected, (state, action) => {
+        //state.isLoading = false;
+        //state.isErrorGetProduct = true; // ?
+        state.availablePos = [];
         //state.messageGetProduct = action.payload; // ?
       })
   },

@@ -48,8 +48,24 @@ const getPos = async (params, token) => {
   return response.data;
 };
 
+const getAvailablePos = async (params, token) => {
+  console.log('token ..:', token);
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    },
+    params
+  };
+  console.log('getAvailablePos params ..:', params);
+  const response = await axios.get(`${API_URL}available`, config);
+  console.log('response ..:', response);
+
+  return response.data;
+}
+
 export default {
   createPos,
   updatePos,
-  getPos
+  getPos,
+  getAvailablePos
 };
