@@ -136,6 +136,11 @@ export const SidebarData = [
         title: 'Punto de venta',
         path: '/maestros/puntoventa',
         icon: <IoIcons.IoIosPaper />
+      },
+      {
+        title: 'Metodo de pago',
+        path: '/maestros/metodos_pago',
+        icon: <IoIcons.IoIosPaper />
       }
     ]
   },

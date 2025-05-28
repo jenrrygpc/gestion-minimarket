@@ -594,13 +594,13 @@ footer {
 .ventas  {
   display: grid;
   /*grid-template-columns: repeat(2, 1fr);*/
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 2.0fr 1fr;
   gap: 10px;
   justify-content: space-between;
   /*align-items: center;*/
   margin-bottom: 5px; /* se reduce espacio entre filas */
   background: #f4f4f4;
-  padding: 20px 50px;
+  padding: 20px 10px 10px 20px;
   border-radius: 5px;
   font-size: 12px;
 }
@@ -622,14 +622,15 @@ footer {
 .productos-detalle-grid,
 .productos-cabecera-grid {  
   display: grid;
-  grid-template-columns: 60% 15% 15% 10%;
+  /*grid-template-columns: 60% 15% 15% 10%;*/
+  grid-template-columns: 10% 40% repeat(auto-fill, minmax(90px, 1fr));
   gap: 10px;
   justify-content: space-between;
   /*padding: 10px 100px 10px 10px;*/
   /*align-items: center;*/
   margin-bottom: 5px; /* se reduce espacio entre filas */
   /*background: #f4f4f4;*/
-  background: #a0c2f8;
+  background: #f4f4f4;
   padding: 5px 30px 5px 20px;
   border-radius: 5px;
 }
@@ -637,10 +638,8 @@ footer {
 
 .productos-cabecera-grid {
   font-weight: 900;
-  background: #8ab5fa;
+  background: #cfcece;
 }
-
-
 
 .teclado {  
   display: grid;
@@ -653,14 +652,14 @@ footer {
   margin-bottom: 5px; /* se reduce espacio entre filas */
   /*background: #f4f4f4;*/
   background: #e5ebf0;
-  padding: 20px;
+  padding: 5px;
   border-radius: 5px;
-  margin: 40px;
+  margin: 0px 20px 0px 40px;
 }
 
 .btn-enter {
   grid-column:  4/5;
-  grid-row:  3/5;
+  grid-row:  5/7;
 }
 
 .totales  {
@@ -706,3 +705,53 @@ footer {
 }
 
 /* Fin: disenio para cuadro de busqueda */
+
+
+.btn-extra {
+  background-color: #f0f0f0;
+  color: #333;
+  font-weight: bold;
+}
+
+.btn-col-2 {
+  grid-column:  span 2;
+}
+
+.btn-col-4 {
+  grid-column:  span 4;
+}
+/*
+.pagos {
+  height: 130px;
+  overflow: auto;
+}
+  */
+
+.pagos-scroll {
+  max-height: 100px; /* Ajusta el alto según tu diseño */
+  overflow-y: auto;
+  margin-bottom: 0;
+}
+
+.lista-pagos,
+.lista-pagos-headings {
+  display: grid;
+  /*grid-template-columns: repeat(5, 1fr);*/
+  grid-template-columns: 25% 20% 25% 15%;
+  /*grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));*/
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px; /* se reduce espacio entre filas */
+  background: #f4f4f4;
+  padding: 3px 15px;
+  border-radius: 5px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.lista-pagos-headings {
+  font-weight: 700;
+  background: #cfcece;
+  padding: 5px 15px;
+}

@@ -13,10 +13,14 @@ const createPosShift = asyncHandler(async (req, res) => {
             status,
             shiftStart,
             initialAmount,
-            idPos
+            posId,
+            storeId
         }
     } = req.body;
-    if (!status || !shiftStart || !initialAmount || !idPos) {
+
+    console.log('req.body.payload ..:', req.body.payload);
+
+    if (!status || !shiftStart || !initialAmount || !posId) {
         res.status(400);
         throw new Error('Incluir estado, hora inicio turno, monto inicial y punto de venta');
     }
@@ -28,11 +32,27 @@ const createPosShift = asyncHandler(async (req, res) => {
         throw new Error('Usuario no encontrado');
     }
 
+    // Convertir shiftStart a UTC
+    const now = new Date();
+    const shiftStartUTC = new Date((new Date(shiftStart)).getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString()
+    .slice(0, 19);
+    console.log('shiftStartUTC ..:', shiftStartUTC);
+    const shiftStartISO = new Date(shiftStartUTC).toISOString();
+    console.log('shiftStartISO ..:', shiftStartISO);
+
+    const shiftStartLocal = new Date(shiftStart).toLocaleString('es-ES', { timeZone: 'America/Lima' });
+    console.log('Fecha local:', shiftStartLocal);
+
+    const shiftStartUTC2 = new Date(shiftStart);
+    console.log('shiftStartUTC2 ..:', shiftStartUTC2);
+
     const newPosShift = await PosShift.create({
         status,
-        shiftStart,
+        shiftStart: shiftStartUTC2,
         initialAmount,
-        idPos,
+        posId,
+        storeId,
         user: req.id
     });
 
@@ -144,6 +164,7 @@ const getValidPosShift = asyncHandler(async (req, res) => {
 
     const posShiftList = await PosShift.find({
         user: req.id,
+        storeId: req.query.storeId,
         status: 'ABIERTO',
     });
 

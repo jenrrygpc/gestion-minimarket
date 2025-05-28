@@ -14,6 +14,7 @@ import {
   logout, reset, showSidebar,
   getUser
 } from '../features/auth/authSlice';
+import { setPosShift } from "../features/posShift/posShiftSlice";
 
 
 
@@ -72,12 +73,19 @@ function Header() {
   const dispatch = useDispatch();
   const { user, sidebar, isError, message, store } = useSelector((state) => state.auth);
 
+  const { posShift } = useSelector(
+    (state) => state.posShift
+  );
+
   console.log('user Header ..:', user);
   console.log('store Header ..:', store);
+
+  console.log('posShift Header ..:', posShift);
 
   const onLogout = () => {
     dispatch(logout());
     dispatch(reset());
+    
     navigate('/');
   };
 
@@ -120,6 +128,18 @@ function Header() {
           {
             user ? (
               <>
+
+{
+                  posShift?.posName && (
+                    <>
+                      <LoginStyle2>
+                        Punto de Venta:
+                      </LoginStyle2>
+                      {posShift.posName || ''} 
+                    </>
+                  )
+                }
+
                 <LoginStyle2>
                   Sucursal:
                 </LoginStyle2>
@@ -128,6 +148,9 @@ function Header() {
                   Bienvenid@:
                 </LoginStyle2>
                 {user.name}
+
+                
+
                 <LoginStyle2>
                   <button className='btn' onClick={onLogout}><FaSignOutAlt /> Salir</button>
                 </LoginStyle2>

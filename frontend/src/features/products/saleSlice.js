@@ -6,12 +6,13 @@ const initialState = {
   isError: false,
   isSuccess: false,
   isLoading: false,
-  message: ''
+  message: '',
+  products: [],
 };
 
 // Create new product
 export const createProduct = createAsyncThunk(
-  'products/create',
+  'sale/create',
   async (productData, thunkAPI) => {
     try {
       const { token } = thunkAPI.getState().auth.user;
@@ -29,12 +30,13 @@ export const createProduct = createAsyncThunk(
 
 // Get product by code
 export const getProduct = createAsyncThunk(
-  'products/getByCode',
+  'sale/getProducts',
   async (params, thunkAPI) => {
     try {
       console.log('getProduct saleSlice ');
       const { token } = thunkAPI.getState().auth.user;
-      return await productService.getProduct(params, token);
+      const store = thunkAPI.getState().auth.store;
+      return await productService.getProduct(params, { token, store });
     } catch (error) {
       console.log('error ..:', error);
       const message = (error.response && error.response.data
@@ -68,18 +70,23 @@ export const saleSlice = createSlice({
         state.message = action.payload;
       })
       .addCase(getProduct.pending, (state) => {
-        state.isLoading = true;
+        //state.isLoading = true;
       })
       .addCase(getProduct.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.product = action.payload;
+        //state.isLoading = false;
+        const { payload } = action;
+        console.log('payload ..: ', payload);
+        if (Array.isArray(payload)) {
+          state.products = payload;
+        } else if (payload !== null && typeof payload === 'object') {
+          state.product = payload;
+        } else {
+          state.product = {};
+        }
       })
       .addCase(getProduct.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        //state.product = {};
-        state.message = action.payload;
+        //state.isLoading = false;
+        state.product = {};
       })
   },
 });

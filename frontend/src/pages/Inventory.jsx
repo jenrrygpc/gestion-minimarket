@@ -73,6 +73,12 @@ function Inventory() {
     dispatch(getRTs());
   }, []);
 
+  useEffect(() => {
+    return () => {
+      dispatch(reset()); // Reiniciar el estado global al desmontar
+    };
+  }, [dispatch]);
+
   // useEffect to handle items by page.
   useEffect(() => {
     console.log('useEffect product ...', product);

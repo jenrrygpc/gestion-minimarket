@@ -73,6 +73,7 @@ const getUsers = async (params, token) => {
 const logout = () => {
   localStorage.removeItem('user');
   localStorage.removeItem('store');
+  localStorage.removeItem('posShift');
 }
 
 export default {

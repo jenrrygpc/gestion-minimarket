@@ -54,7 +54,7 @@ export const updateProduct = createAsyncThunk(
 
 // Get product by code
 export const getProduct = createAsyncThunk(
-  'products/getByCode',
+  'product/getProducts',
   async (params, thunkAPI) => {
     try {
       console.log('getProduct productSlice ');

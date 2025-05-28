@@ -5,6 +5,7 @@ const API_URL = '/api/pos-shift/';
 //Create new pos shift
 const createPosShift = async (posData, token) => {
   console.log('token ..:', token);
+  console.log('posData ..:', posData);
   const config = {
     headers: {
       Authorization: `Bearer ${token}`

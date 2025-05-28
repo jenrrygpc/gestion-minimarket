@@ -15,7 +15,10 @@ export const createPosShift = createAsyncThunk(
   'posShift/create',
   async (posData, thunkAPI) => {
     try {
-      const { token } = thunkAPI.getState().auth.user;
+      const { user, store } = thunkAPI.getState().auth;
+      const { token } = user;
+      const { id } = store;
+      posData.storeId = id;
       return await posShiftService.createPosShift(posData, token);
     } catch (error) {
       console.log('error ..:', error);
@@ -70,8 +73,11 @@ export const getValidPosShift = createAsyncThunk(
   'validPosShift/get',
   async (params, thunkAPI) => {
     try {
-      const { token, id } = thunkAPI.getState().auth.user;
-      params.user = id;
+      const { user, store } = thunkAPI.getState().auth;
+      const { token, id: userId } = user;
+      const { id: storeId } = store;
+      params.user = userId;
+      params.storeId = storeId;
       return await posShiftService.getValidPosShift(params, token);
     } catch (error) {
       console.log('error ..:', error);
@@ -99,6 +105,7 @@ export const posShiftSlice = createSlice({
     },
     setPosShift: (state, action) => {
       state.posShift = action.payload;
+      state.message = 'setPosShift';
     }
   },
   extraReducers: (builder) => {
@@ -106,9 +113,11 @@ export const posShiftSlice = createSlice({
       .addCase(createPosShift.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(createPosShift.fulfilled, (state) => {
+      .addCase(createPosShift.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isSuccess = true;
+        state.posShift = action.payload;
+        state.message = 'createPosShift';
         state.isError = false;
       })
       .addCase(createPosShift.rejected, (state, action) => {
@@ -138,12 +147,20 @@ export const posShiftSlice = createSlice({
         state.posShiftList = [];
       })
       .addCase(getValidPosShift.pending, (state) => {
+        state.isLoading = true;
       })
       .addCase(getValidPosShift.fulfilled, (state, action) => {
         state.posShiftList = action.payload
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.message = 'getValidPosShift';
+        state.isError = false;
       })
       .addCase(getValidPosShift.rejected, (state, action) => {
         state.posShiftList = [];
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
       })
   },
 });

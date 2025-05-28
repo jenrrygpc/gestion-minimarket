@@ -1,4 +1,5 @@
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 
 const User = require('../models/userModel');
 const Pos = require('../models/posModel');
@@ -104,15 +105,20 @@ const updatePos = asyncHandler(async (req, res) => {
 
 });
 
-const getAvailablePos = asyncHandler(async (req, res) => {
+const getAvailablePos = asyncHandler(async ({ query }, res) => {
+    const { storeId } = query;
+    console.log('storeId ..:', storeId);
     // obtener todos los POS disponibles en la tienda.
-    const allPos = await Pos.find({ store: req.params.storeId });
+    const allPos = await Pos.find({ store: storeId });
+    console.log('allPos ..:', allPos);
 
     // obtener todos los POS que están abiertos
-    const openPos = await Pos   Shift.find({ store: req.params.storeId, status: 'ABIERTO' });
+    const openPos = await PosShift.find({ store: storeId, status: 'ABIERTO' });
+    console.log('openPos ..:', openPos);
 
     // filtrar los POS disponibles
     const availablePos = allPos.filter(pos => !openPos.some(open => open._id.toString() === pos._id.toString()));
+    console.log('availablePos ..:', availablePos);
 
     res.status(200).json(availablePos);
 

@@ -9,7 +9,7 @@ const posShiftSchema = mongoose.Schema({
   shiftStart: {
     type: Date,
     required: [true, 'Ingresar fecha de inicio de turno.'],
-    default: Date.now
+    //default: Date.now
   },
   shiftEnd: {
     type: Date
@@ -27,10 +27,15 @@ const posShiftSchema = mongoose.Schema({
     type: Boolean,
     default: true
   },
-  idPos: {
+  posId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'Pos'
+  },
+  storeId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Store'
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,

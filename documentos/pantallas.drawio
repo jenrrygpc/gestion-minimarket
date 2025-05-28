@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2024-12-16T14:34:49.779Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="3LbWrDYQW1sZxdld9qOW" version="22.1.2" type="device" pages="5">
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.2.2 Chrome/134.0.6998.178 Electron/35.1.2 Safari/537.36" version="26.2.2" pages="6">
   <diagram name="Page-1" id="03018318-947c-dd8e-b7a3-06fadd420f32">
     <mxGraphModel dx="1020" dy="504" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" background="#ffffff" math="0" shadow="0">
       <root>
@@ -278,6 +278,47 @@
         </mxCell>
         <mxCell id="KLbH_MdM0iH873docgaR-9" value="proveedor" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
           <mxGeometry x="210" y="180" width="120" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="vkgBcKpNj6Iu_PQJfeil" name="agregar medios de pago">
+    <mxGraphModel dx="1027" dy="524" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-1" value="Monto por pagar: 500" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="150" y="410" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-6" value="Monto ingresado: 100" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="304" y="410" width="120" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-7" value="Pagar/ Agregar Pago" style="rounded=1;fillColor=#0057D8;strokeColor=none;html=1;whiteSpace=wrap;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=12;sketch=0;" vertex="1" parent="1">
+          <mxGeometry x="350" y="190" width="160" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-9" value="metodo pago" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="150" y="290" width="110" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-10" value="" style="swimlane;container=1;shape=mxgraph.bootstrap.rrect;rSize=5;strokeColor=#999999;fillColor=#ffffff;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=0;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;whiteSpace=wrap;html=1;marginTop=10;marginBottom=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="30" width="170" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-11" value="Efectivo" style="text;align=left;verticalAlign=middle;spacingLeft=20;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=inherit;fontSize=14;fontStyle=0;" vertex="1" parent="SQCtJZeRJkg6KpHO_N5i-10">
+          <mxGeometry y="10" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-12" value="Tarjeta credito" style="text;fillColor=#0085FC;align=left;verticalAlign=middle;spacingLeft=20;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=#ffffff;fontSize=14;fontStyle=0;" vertex="1" parent="SQCtJZeRJkg6KpHO_N5i-10">
+          <mxGeometry y="40" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-13" value="Yape" style="text;align=left;verticalAlign=middle;spacingLeft=20;spacingRight=10;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;fontColor=inherit;fontSize=14;fontStyle=0;" vertex="1" parent="SQCtJZeRJkg6KpHO_N5i-10">
+          <mxGeometry y="70" width="170" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-15" value="monto" style="rounded=1;arcSize=9;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="160" y="190" width="160" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-16" value="monto" style="text;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="290" y="290" width="90" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="SQCtJZeRJkg6KpHO_N5i-17" value="Monto vuelto: 100" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="450" y="410" width="120" height="30" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

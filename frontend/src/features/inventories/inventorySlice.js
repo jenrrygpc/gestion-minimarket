@@ -15,7 +15,7 @@ const initialState = {
 
 // Create new inventory
 export const registerInventory = createAsyncThunk(
-  'products/create',
+  'inventory/create',
   async (inventoryData, thunkAPI) => {
     try {
       const { token } = thunkAPI.getState().auth.user;
@@ -36,10 +36,10 @@ export const registerInventory = createAsyncThunk(
 
 // Get product by code
 export const getProduct = createAsyncThunk(
-  'products/getByCode',
+  'inventory/getProducts',
   async (params, thunkAPI) => {
     try {
-      console.log('getProduct productSlice ');
+      console.log('getProduct inventorySlice ');
       const { token } = thunkAPI.getState().auth.user;
       const store = thunkAPI.getState().auth.store;
       return await productService.getProduct(params, { token, store });
@@ -56,7 +56,7 @@ export const getProduct = createAsyncThunk(
 
 // Update products
 export const updateProducts = createAsyncThunk(
-  'products/update-stock',
+  'inventory/update-stock',
   async (productData, thunkAPI) => {
     try {
       const { token } = thunkAPI.getState().auth.user;

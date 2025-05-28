@@ -9,6 +9,7 @@ import ProductSale from "./pages/ProductSale";
 import Product from "./pages/Product";
 import Category from "./pages/Category";
 import Display from "./pages/Display";
+import MetodoPago from "./pages/MetodoPago";
 import Store from "./pages/Store";
 import Pos from "./pages/Pos";
 import Ventas from "./pages/Ventas";
@@ -31,6 +32,7 @@ function App() {
             <Route path = '/productos/registro' element = {<Product />} />
             <Route path = '/maestros/categoria' element = {<Category />} />
             <Route path = '/maestros/presentacion' element = {<Display />} />
+            <Route path = '/maestros/metodos_pago' element = {<MetodoPago />} />
             <Route path = '/maestros/tienda' element = {<Store />} />
             <Route path = '/maestros/puntoventa' element = {<Pos />} />
             <Route path = '/ventas/venta' element = {<Ventas />} />
