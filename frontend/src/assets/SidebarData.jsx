@@ -141,6 +141,11 @@ export const SidebarData = [
         title: 'Metodo de pago',
         path: '/maestros/metodos_pago',
         icon: <IoIcons.IoIosPaper />
+      },
+      {
+        title: 'Cliente',
+        path: '/maestros/cliente',
+        icon: <IoIcons.IoIosPaper />
       }
     ]
   },

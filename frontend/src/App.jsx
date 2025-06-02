@@ -15,6 +15,7 @@ import Pos from "./pages/Pos";
 import Ventas from "./pages/Ventas";
 import PosShift from "./pages/PosShift";
 import Inventory from "./pages/Inventory";
+import Customer from "./pages/Customer";
 
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
             <Route path = '/maestros/metodos_pago' element = {<MetodoPago />} />
             <Route path = '/maestros/tienda' element = {<Store />} />
             <Route path = '/maestros/puntoventa' element = {<Pos />} />
+            <Route path = '/maestros/cliente' element = {<Customer />} />
             <Route path = '/ventas/venta' element = {<Ventas />} />
             <Route path = '/ventas/turno' element = {<PosShift />} />
             <Route path = '/inventario/nuevo' element = {<Inventory />} />

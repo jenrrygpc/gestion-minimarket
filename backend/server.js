@@ -24,6 +24,7 @@ app.use('/api/profiles/', require('./routes/profileRoutes'));
 
 app.use('/api/masters/', require('./routes/masterRoutes'));
 app.use('/api/stores/', require('./routes/storeRoutes'));
+app.use('/api/customers/', require('./routes/customerRoutes'));
 app.use('/api/inventories/', require('./routes/inventoryRoutes'));
 app.use('/api/reasons-transaction/', require('./routes/reasonTransactionRoutes'));
 

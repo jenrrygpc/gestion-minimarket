@@ -11,6 +11,7 @@ import inventoryReducer from '../features/inventories/inventorySlice';
 import reasonTransactionReducer from '../features/reasons-transaction/reasonTransactionSlice';
 import posReducer from '../features/pos/posSlice';
 import posShiftReducer from '../features/posShift/posShiftSlice';
+import customerReducer from '../features/customers/customerSlice';
 
 export const store = configureStore({
   reducer: {
@@ -25,6 +26,7 @@ export const store = configureStore({
     inventory: inventoryReducer,
     reasonTransaction: reasonTransactionReducer,
     pos: posReducer,
-    posShift: posShiftReducer
+    posShift: posShiftReducer,
+    customer: customerReducer
   },
 });

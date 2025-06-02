@@ -755,3 +755,26 @@ footer {
   background: #cfcece;
   padding: 5px 15px;
 }
+
+
+.listas-clientes,
+.listas-clientes-headings {
+  display: grid;
+  /*grid-template-columns: repeat(5, 1fr);*/
+  grid-template-columns: 8% 25% 20% 25% 8% 5%;
+  /*grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));*/
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px; /* se reduce espacio entre filas */
+  background: #f4f4f4;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.listas-clientes-headings {
+  font-weight: 700;
+  background: #cfcece;
+}

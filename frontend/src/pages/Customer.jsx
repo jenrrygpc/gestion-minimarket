@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-//import { toast } from "react-toastify";
 import { FaUser } from "react-icons/fa";
 import { TbNewSection } from "react-icons/tb";
 import { AiTwotoneEdit } from "react-icons/ai";
 import { useSelector, useDispatch } from "react-redux";
 import ReactPaginate from 'react-paginate'; // pagination library
 import {
-  createStore, updateStore, getStores,
-  reset, setStore, resetStore
-} from "../features/stores/storeSlice";
+  createCustomer, updateCustomer, getCustomers,
+  reset, setCustomer, resetCustomer
+} from "../features/customers/customerSlice";
 
 import Spinner from '../components/Spinner';
 import Message from '../components/Message';
@@ -34,22 +33,24 @@ Modal.setAppElement('#root');
 /* Fin: atributos para ventana modal */
 
 const initialState = {
-  name: '',
-  description: '',
-  address: ''
-}
+  documentNumber: '',
+  names: '',
+  email: '',
+  address: '',
+  cellphone: ''
+};
 
-function Store() {
+function Customer() {
 
   // ini pagination states
   const [offset, setOffset] = useState(0);
-  const [storesPage, setStoresPage] = useState([]);
+  const [customersPage, setCustomersPage] = useState([]);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
   //fin pagination states
 
   //state para establecer el texto de busqueda.
-  const [storeSearch, setStoreSearch] = useState('');
+  const [customerSearch, setCustomerSearch] = useState('');
 
   //state para abrir o cerrar el modal.
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -57,32 +58,32 @@ function Store() {
   console.log('initialState ..:', initialState);
   const [formData, setFormData] = useState(initialState);
 
-  const { name, description, address } = formData;
+  const { documentNumber, names, email, address, cellphone } = formData;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { store, stores, isLoading, isError, isSuccess, message } = useSelector(
-    (state) => state.store
+  const { customer, customers, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.customer
   );
 
-  console.log('stores ..:', stores);
+  console.log('customers ..:', customers);
 
   useEffect(() => {
-    console.log('useEffect 1 ...', isError, isSuccess, store, message);
+    console.log('useEffect 1 ...', isError, isSuccess, customer, message);
     if (isError) {
       //toast.error(message);
-      Message('Tienda actualizada exitosamente!', 'error');
+      Message('Cliente actualizado exitosamente!', 'error');
       dispatch(reset());
     }
 
     if (isSuccess) {
       closeModal();
-      dispatch(getStores());
-      if (store._id) {
-        Message('Tienda actualizada exitosamente!');
+      dispatch(getCustomers());
+      if (customer._id) {
+        Message('Cliente actualizado exitosamente!');
       } else {
-        Message('Tienda creada exitosamente!');
+        Message('Cliente creado exitosamente!');
       }
     }
   }, [isError, isSuccess, message, navigate, dispatch]);
@@ -90,35 +91,37 @@ function Store() {
   // useEffect usado para cargar la data al inicio. (solo se ejecuta la primera vez)
   useEffect(() => {
     console.log('useEffect 2 ...');
-    dispatch(getStores());
+    dispatch(getCustomers());
   }, []);
 
   // useEffect to handle items by page.
   useEffect(() => {
-    console.log('useEffect stores ...', stores);
-    setStoresPage(stores.slice(offset * perPage,
+    console.log('useEffect customers ...', customers);
+    setCustomersPage(customers.slice(offset * perPage,
       (offset + 1) * perPage));
-    setPageCount(Math.ceil(stores.length / perPage));
-  }, [stores]);
+    setPageCount(Math.ceil(customers.length / perPage));
+  }, [customers]);
 
   // use effect to handle pagination
   useEffect(() => {
     console.log('use effect offset ');
-    setStoresPage(stores.slice(offset * perPage,
+    setCustomersPage(customers.slice(offset * perPage,
       (offset + 1) * perPage));
   }, [offset]);
 
   //useEffect to show data on popup.
   useEffect(() => {
-    console.log('useEffect 3 ...', store);
+    console.log('useEffect 3 ...', customer);
     //if (user._id) {
     setFormData({
-      name: store.name,
-      description: store.description,
-      address: store.address
+      documentNumber: customer.documentNumber,
+      names: customer.names,
+      email: customer.email,
+      address: customer.address,
+      cellphone: customer.cellphone
     });
     //}
-  }, [store]);
+  }, [customer]);
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -128,43 +131,49 @@ function Store() {
   };
 
   const onChangeSearch = (e) => {
-    setStoreSearch(e.target.value);
+    setCustomerSearch(e.target.value);
   };
 
   const onKeyDownSearch = (e) => {
     console.log('onKeyDownSearch ..:', e);
     if (e.key === 'Enter') {
-      console.log('get store ..:');
-      dispatch(getStores({ name: e.target.value }));
+      console.log('get customer ..:');
+      dispatch(getCustomers({ names: e.target.value }));
     }
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
 
-    if (store._id) {
-      dispatch(updateStore({
-        id: store._id,
-        name,
-        description,
-        address
+    if (customer._id) {
+      dispatch(updateCustomer({
+        id: customer._id,
+        documentNumber,
+        names,
+        email,
+        address,
+        cellphone
       }));
     } else {
-      dispatch(createStore({
-        name,
-        description,
-        address
+      dispatch(createCustomer({
+        documentNumber,
+        names,
+        email,
+        address,
+        cellphone
       }));
     }
 
   };
 
-  const onEditar = (e) => {
+  const onEditar = (customer) => {
+    /*
     console.log('onEditar  ...', e.target.id);
-    const store = stores.find((store) => store._id == e.target.id);
-    console.log('onEditar store ...', store);
-    if (store) {
-      dispatch(setStore(store));
+    const customer = customers.find((customer) => customer._id == e.target.id);
+    console.log('onEditar customer ...', customer);
+    */
+    if (customer) {
+      dispatch(setCustomer(customer));
       openModal();
     }
   };
@@ -179,7 +188,7 @@ function Store() {
     setFormData(initialState);
     // validar si se deberia limpiar todo el initialState
     dispatch(reset());
-    dispatch(resetStore());
+    dispatch(resetCustomer());
   };
 
   // manejar el evento de paginacion.
@@ -199,7 +208,7 @@ function Store() {
       <br></br>
       <section>
         <h1>
-          <FaUser /> Tiendas
+          <FaUser /> Clientes
         </h1>
       </section>
 
@@ -214,12 +223,12 @@ function Store() {
                   <input
                     type='text'
                     className='form-control'
-                    id='storeSearch'
-                    name='storeSearch'
-                    value={storeSearch}
+                    id='customerSearch'
+                    name='customerSearch'
+                    value={customerSearch}
                     onChange={onChangeSearch}
                     onKeyDown={onKeyDownSearch}
-                    placeholder='Busqueda de tiendas...'
+                    placeholder='Busqueda de clientes...'
                     //ref={refInputDescBusqueda}
                     required />
                 </div>
@@ -234,22 +243,29 @@ function Store() {
           </tbody>
         </table>
 
-        {stores.length > 0 && <div>
+        {customers.length > 0 && <div>
 
-          <div className="listas-headings" key="0">
-            <div>Nombre</div>
-            <div>Descripción</div>
+          <div className="listas-clientes-headings" key="0">
+            <div>Documento</div>
+            <div>Nombres</div>
+            <div>Correo</div>
             <div>Dirección</div>
+            <div>Celular</div>
             <div>Editar</div>
           </div>
 
-          {storesPage.map(store => (
-            <div className="listas" key={store._id}>
-              <div>{store.name}</div>
-              <div>{store.description}</div>
-              <div> {store.address}</div>
-              <div><AiTwotoneEdit onClick={onEditar} id={store._id} /> </div>
-
+          {customersPage.map(customer => (
+            <div className="listas-clientes" key={customer._id}>
+              <div>{customer.documentNumber}</div>
+              <div>{customer.names}</div>
+              <div>{customer.email}</div>
+              <div>{customer.address}</div>
+              <div>{customer.cellphone}</div>
+              <div>
+                <button onClick={() => onEditar(customer)} style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                  <AiTwotoneEdit color="black" />
+                </button>
+              </div>
             </div>
           ))}
         </div>}
@@ -270,8 +286,8 @@ function Store() {
         </div>
 
 
-        <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStyles} contentLabel='Nueva Tienda'>
-          <h3>Nueva Tienda</h3>
+        <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStyles} contentLabel='Nuevo Cliente'>
+          <h3>Nuevo Cliente</h3>
           <hr></hr>
 
           <button className='btn-close' onClick={closeModal}>
@@ -286,18 +302,18 @@ function Store() {
                   <tbody>
                     <tr>
                       <td>
-                        <label htmlFor="name">Nombre ..:</label>
+                        <label htmlFor="name">Documento ..:</label>
                       </td>
                       <td>
 
                         <input
                           type='text'
                           className='form-control'
-                          id='name'
-                          name='name'
-                          value={name}
+                          id='documentNumber'
+                          name='documentNumber'
+                          value={documentNumber}
                           onChange={onChange}
-                          placeholder='Ingrese nombre'
+                          placeholder='Ingrese documento'
                           required />
 
                       </td>
@@ -305,17 +321,35 @@ function Store() {
 
                     <tr>
                       <td>
-                        <label htmlFor="name">Descripción ..:</label>
+                        <label htmlFor="name">Nombres completos ..:</label>
                       </td>
                       <td>
                         <input
                           type='text'
                           className='form-control'
-                          id='description'
-                          name='description'
-                          value={description}
+                          id='names'
+                          name='names'
+                          value={names}
                           onChange={onChange}
-                          placeholder='Ingrese descripción' />
+                          placeholder='Ingrese nombres completos' />
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <label htmlFor="name">Correo ..:</label>
+                      </td>
+                      <td>
+                        <input
+                          type='text'
+                          className='form-control'
+                          id='email'
+                          name='email'
+                          value={email}
+                          onChange={onChange}
+                          placeholder='Ingrese correo'
+                          required />
+
                       </td>
                     </tr>
 
@@ -336,11 +370,29 @@ function Store() {
 
                       </td>
                     </tr>
+
+                    <tr>
+                      <td>
+                        <label htmlFor="name">Celular ..:</label>
+                      </td>
+                      <td>
+                        <input
+                          type='text'
+                          className='form-control'
+                          id='cellphone'
+                          name='cellphone'
+                          value={cellphone}
+                          onChange={onChange}
+                          placeholder='Ingrese celular'
+                          required />
+
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
               <div className="form-group">
-                <button className="btn btn-block">{store._id ? 'Actualizar' : 'Registrar'}</button>
+                <button className="btn btn-block">{customer._id ? 'Actualizar' : 'Registrar'}</button>
               </div>
             </form>
           </section>
@@ -352,4 +404,4 @@ function Store() {
   );
 }
 
-export default Store;
+export default Customer;
