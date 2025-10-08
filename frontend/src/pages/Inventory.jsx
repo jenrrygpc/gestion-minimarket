@@ -134,7 +134,7 @@ function Inventory() {
     if (isSuccess) {
       Message('Inventario actualizado exitosamente!');
       // actualizar stock y price en el listado de productos.
-      handleStockAndPriceUpdate(productsInventory);
+      //handleStockAndPriceUpdate(productsInventory);
       reiniciar();
     }
   }, [isError, isSuccess, message, navigate, dispatch]);
@@ -151,8 +151,6 @@ function Inventory() {
         cost: Number(product.cost),
       }))
     ))
-
-
   }
 
   /*

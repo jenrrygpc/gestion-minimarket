@@ -6,9 +6,16 @@ import { FaBackspace, FaPlusCircle, FaMinusCircle } from "react-icons/fa";
 
 import { useSelector, useDispatch } from "react-redux";
 
+//impresion con react-to-print
+//import { useReactToPrint } from "react-to-print";
+//console.log("ReactToPrint importado:", useReactToPrint);
+import BoletaPrint from "../components/BoletaPrint";
+console.log("BoletaPrint importado:", BoletaPrint);
+
 import {
   createProduct,
   getProduct,
+  createSale,
   reset,
 } from "../features/products/saleSlice";
 import {
@@ -16,8 +23,17 @@ import {
   createPosShift,
   getValidPosShift,
   setPosShift,
+  closePosShift,
+  resetPosShift,
+  getPreClosingSummary,
 } from "../features/posShift/posShiftSlice";
 import { getAvailablePos } from "../features/pos/posSlice";
+import {
+  createCustomer, getCustomers, resetCustomers
+} from "../features/customers/customerSlice";
+
+import { getMasters } from "../features/masters/masterSlice";
+
 /*
 import {
   reset, getMasters, setMaster,
@@ -29,6 +45,7 @@ import Spinner from "../components/Spinner";
 import Message from "../components/Message";
 
 import Modal from "react-modal";
+import { set } from "mongoose";
 const customStyles = {
   content: {
     width: "600px",
@@ -45,7 +62,7 @@ const customStyles = {
 const customStylesPagos = {
   content: {
     width: "600px",
-    height: "340px",
+    height: "380px",
     top: "40%",
     left: "50%",
     right: "auto",
@@ -55,6 +72,20 @@ const customStylesPagos = {
     position: "relative",
   },
 };
+
+const customStylesCustomer = {
+  content: {
+    width: '600px',
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    position: 'relative'
+  },
+};
+
 Modal.setAppElement("#root");
 
 /*
@@ -73,12 +104,14 @@ const initialState = {
 const initialStateSale = {
   documentType: "BOLETA",
   documentNumber: "",
-  customerId: 0,
+  //customerId: 0,
+  customerSale: {},
   amountWithoutTax: 0,
   taxAmount: 0,
   totalAmount: 0,
   productsSale: [],
-  payments: []
+  payments: [],
+  igv: 18, // Porcentaje de IGV
   /*
   paymentMethod: 'EFECTIVO',
   paymentStatus: 'PENDIENTE',
@@ -90,16 +123,116 @@ const initialStatePayment = {
   montoPago: "",
   metodoPago: "EFECTIVO",
   codigoOperacion: "",
-}
+};
 
-function Category() {
+const initialStateCustomer = {
+  documentNumberCustomer: '',
+  names: '',
+  email: '',
+  address: '',
+  cellphone: ''
+};
+
+function Ventas() {
+
+  const boletaRef = useRef(null);
+  const [ventaImprimir, setVentaImprimir] = useState(null);
+
+  // hook de impresión con react-to-print
+  /*
+  const handlePrint = useReactToPrint({
+    contentRef: boletaRef
+  });
+  */
+
+  //funcion para imprimir directamente
+  const handlePrint = () => {
+    if (!boletaRef.current) {
+      console.error("No se encontró el elemento a imprimir");
+      return;
+    }
+
+    // Crear ventana de impresión optimizada
+    const printWindow = window.open('', '_blank', 'width=300,height=600,scrollbars=yes');
+
+    if (!printWindow) {
+      alert('Por favor, permite las ventanas emergentes para imprimir');
+      return;
+    }
+
+    // Escribir contenido optimizado para impresora térmica
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Boleta de Venta</title>
+          <meta charset="utf-8">
+          <style>
+            @page { 
+              size: 80mm auto; 
+              margin: 0; 
+            }
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body { 
+              font-family: 'Courier New', monospace;
+              font-size: 12px;
+              line-height: 1.2;
+              color: #000;
+              background: #fff;
+              width: 72mm;
+              padding: 2mm;
+            }
+            @media print {
+              body { 
+                margin: 0;
+                padding: 2mm;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          ${boletaRef.current.innerHTML}
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+
+    // Esperar a que cargue y luego imprimir
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+
+        // Cerrar ventana después de imprimir (opcional)
+        setTimeout(() => {
+          printWindow.close();
+          console.log("Impresión completada");
+          setVentaImprimir(null); // Limpiar datos de impresión
+        }, 1000);
+      }, 500);
+    };
+  };
+
+
+
+  // Al inicio del componente Ventas
+  const [modalCierreIsOpen, setModalCierreIsOpen] = useState(false);
+  const [resumenCierre, setResumenCierre] = useState(null);
+
   //state para establecer el texto de busqueda.
   const [productSearch, setProductSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showResults, setShowResults] = useState(false);
 
   const [formDataSale, setFormDataSale] = useState(initialStateSale);
-  const { documentType, documentNumber, customerId, igv, totalAmount, productsSale, payments } = formDataSale;
+  const { documentType, documentNumber, customerId, customerSale, igv, totalAmount, productsSale, payments } = formDataSale;
 
   const [formData, setFormData] = useState(initialState);
   const [modalIsOpen, setModalIsOpen] = useState(false); // Estado para manejar la visibilidad del modal
@@ -114,7 +247,7 @@ function Category() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { product, products, isLoading, isError, isSuccess, message } =
+  const { product, products, sale, isLoading, isError, isSuccess, message } =
     useSelector((state) => state.sale);
 
   const {
@@ -124,14 +257,22 @@ function Category() {
     isSuccess: isSuccessPS,
     message: messagePS,
     isError: isErrorPS,
+    shiftClosingResult,
+    preClosingSummary
   } = useSelector((state) => state.posShift);
 
   const { availablePos } = useSelector((state) => state.pos);
 
+  const { masters: paymentMethods } = useSelector(
+    (state) => state.master
+  );
+
   console.log("posShiftList ..:", posShiftList);
   console.log("availablePos ..:", availablePos);
+  console.log("paymentMethods ..:", paymentMethods);
 
   useEffect(() => {
+    //dispatch(resetPosShift());
     dispatch(getAvailablePos({}));
     const checkPosShift = async () => {
       console.log("localStorage.getItem ..:", localStorage.getItem("posShift"));
@@ -141,7 +282,7 @@ function Category() {
       if (posShiftStorage?._id) {
         const isValid = await validatePosShift(posShiftStorage);
         if (isValid) {
-          closeModal();
+          //closeModal(); cambio 02
           return;
         }
         localStorage.removeItem("posShift"); // Remove invalid posShift from localStorage
@@ -152,6 +293,16 @@ function Category() {
     };
 
     checkPosShift();
+
+    dispatch(getMasters({
+      type: 'METODOS_PAGO'
+    }));
+
+    // ✅ CLEANUP: Limpiar al desmontar
+    return () => {
+      console.log("🧹 Limpiando al desmontar componente Ventas");
+      dispatch(resetPosShift());
+    };
   }, []);
 
   useEffect(() => {
@@ -172,7 +323,7 @@ function Category() {
     console.log("messagePS ...", messagePS);
     console.log("isErrorPS ...", isErrorPS);
 
-    if (isSuccessPS) {
+    if (isSuccessPS && messagePS === "getValidPosShift") {
       if (posShiftList.length === 0) {
         console.log("No hay caja abierta ...");
         openModal(); // Abrir modal si no hay caja abierta
@@ -225,7 +376,7 @@ function Category() {
       closeModal();
       // navigate('/ventas');
     } else if (posShift._id) {
-      closeModal();
+      //closeModal();  --cambio 01
     }
   }, [posShift]);
 
@@ -272,6 +423,73 @@ function Category() {
     //setShowResults(true);
   }, [products]);
 
+  const handleCerrarCaja = () => {
+    if (!posShift._id) {
+      Message("No hay turno abierto para cerrar.", "error");
+      return;
+    }
+
+    dispatch(getPreClosingSummary(
+      posShift._id
+    ));
+
+    /*
+    dispatch(closePosShift({
+      posShiftId: posShift._id
+    }));
+    */
+
+  }
+
+  const cancelarCierre = () => {
+    setModalCierreIsOpen(false);
+    setResumenCierre(null);
+    Message("Cierre de caja cancelado.", "info");
+  }
+
+  const confirmarCierre = () => {
+    if (!posShift._id) {
+      Message("No hay turno abierto para cerrar.", "error");
+      return;
+    }
+    setModalCierreIsOpen(false);
+    setResumenCierre(null);
+
+    dispatch(closePosShift({
+      posShiftId: posShift._id
+    }));
+
+  }
+
+  // Agregar useEffect para manejar el resultado del cierre
+  useEffect(() => {
+
+    if (isSuccessPS && messagePS === 'getPreClosingSummary' && preClosingSummary) {
+      setResumenCierre(preClosingSummary.summary || preClosingSummary); // Ajusta según tu backend
+      setModalCierreIsOpen(true);
+    }
+
+    // Si el cierre fue exitoso, mostrar mensaje y limpiar estados
+    if (isSuccessPS && messagePS === 'closePosShift' && shiftClosingResult) {
+      Message("Caja cerrada correctamente.", "success");
+
+      // Limpiar estados
+      limpiarVenta();
+
+      // Limpiar localStorage y estado de posShift
+      localStorage.removeItem("posShift");
+      dispatch(resetPosShift());
+
+
+      // Navegar al inicio
+      //navigate("/");
+      setTimeout(() => {
+        navigate("/");
+      }, 1000); // Esperar 1 segundo para que el usuario vea el mensaje
+    }
+
+  }, [isSuccessPS, isErrorPS, messagePS, shiftClosingResult, preClosingSummary])
+
   console.log("showResults ...", showResults);
   console.log("searchResults ...", searchResults);
 
@@ -291,7 +509,7 @@ function Category() {
       }
     }
 
- 
+
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
@@ -303,6 +521,11 @@ function Category() {
     }));
 
     setFormDataSale((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    setFormDataCustomer((prevState) => ({
       ...prevState,
       [name]: value,
     }));
@@ -372,6 +595,26 @@ function Category() {
       setSearchResults([]);
       setShowResults(false);
     }
+  };
+
+  const onChangePaymentMethod = (index, e) => {
+    const newMetodo = e.target.value;
+    setFormDataSale((prevState) => ({
+      ...prevState,
+      payments: prevState.payments.map((p, i) =>
+        i === index ? { ...p, metodoPago: newMetodo } : p
+      )
+    }));
+  };
+
+  const onChangeCodigoOperacion = (index, e) => {
+    const newCodigo = e.target.value;
+    setFormDataSale((prevState) => ({
+      ...prevState,
+      payments: prevState.payments.map((p, i) =>
+        i === index ? { ...p, codigoOperacion: newCodigo } : p
+      )
+    }));
   };
 
   const onKeyDownSearch = (e) => {
@@ -452,8 +695,13 @@ function Category() {
   };
 
   const closeModal = () => {
-    console.log("closeModal entra? ..:");
+    console.log("closeModal entra? ..:", posShift);
     setModalIsOpen(false);
+
+    if (!posShift || !posShift._id) {
+      navigate("/");
+    }
+
     //setFormData(initialState);
     // validar si se deberia limpiar todo el initialState
     //dispatch(reset());
@@ -553,12 +801,15 @@ function Category() {
 
   const handleDeletePayment = (index) => {
     console.log("handleDeletePayment ...", index);
+    console.log("payments ...", payments);
     setFormDataSale((prevState) => ({
       ...prevState,
       payments: prevState.payments.filter((_, i) => i !== index)
     }));
+
+    //setPagos(initialStatePayment); // <-- Reinicia el formulario de pago
   };
-  
+
 
   const handleEventBlur = (event, product) => {
     const { name, value } = event.target;
@@ -586,7 +837,7 @@ function Category() {
   };
 
   const agregarPagos = () => {
-    console.log("pagar ...");
+    console.log("agregarPagos ...");
     if (productsSale.length === 0) {
       Message("No hay productos en la venta!", "error");
       return;
@@ -594,20 +845,131 @@ function Category() {
     abrirModalPago();
   }
 
-  const limpiarVenta = () => {
-  setFormDataSale(initialStateSale); // Reinicia productos y pagos
-  setPagos(initialStatePayment);     // Limpia los campos de pago
-  setProductSearch("");              // Limpia la búsqueda de productos
-  setSearchResults([]);              // Limpia los resultados de búsqueda
-  // Si tienes más estados relacionados, agrégalos aquí
-  if (refInputCode.current) {
-    refInputCode.current.focus();    // Devuelve el foco al input de código
+  const agregarCliente = () => {
+    console.log("agregarCliente ...");
+    openModalCustomer();
   }
-};
+
+  const limpiarVenta = () => {
+    dispatch(reset());
+    setFormDataSale(initialStateSale); // Reinicia productos y pagos
+    setPagos(initialStatePayment);     // Limpia los campos de pago
+    setProductSearch("");              // Limpia la búsqueda de productos
+    setSearchResults([]);              // Limpia los resultados de búsqueda
+    cerrarModalPago();
+    // Si tienes más estados relacionados, agrégalos aquí
+    if (refInputCode.current) {
+      refInputCode.current.focus();    // Devuelve el foco al input de código
+    }
+  };
 
   const pagar = () => {
     console.log("pagar  !!!...");
+    console.log("payments", payments);
+    if (productsSale.length === 0) {
+      Message("No hay productos en la venta!", "error");
+      return;
+    }
+    if (payments.length === 0) {
+      Message("Debe agregar al menos un pago!", "error");
+      return;
+    }
+    if (montoPagado < totalVenta) {
+      Message("El monto pagado es menor al total de la venta!", "error");
+      return;
+    }
+    const venta = {
+      documentType,
+      date: new Date().toISOString(),
+      //customerId: customerSale.id || 0, // Si no hay cliente, se envía 0
+      posShiftId: posShift._id || "",
+      /*
+      customer: {
+        id: customerSale.id || 0,
+        documentNumber: customerSale.documentNumber || "",
+        names: customerSale.names || "",
+      },*/
+      subtotalAmount: totalVenta / (1 + igv / 100),
+      taxAmount: totalVenta - (totalVenta / (1 + igv / 100)),
+      totalAmount: totalVenta,
+      products: productsSale.map(p => ({
+        productId: p.id,
+        code: p.code,
+        description: p.description,
+        quantity: p.quantity,
+        price: p.price,
+        measure: p.measure,
+        subtotal: Number(p.price) * Number(p.quantity)
+      })),
+      payments,
+      changeAmount: montoVuelto
+    }
+
+    if (customerSale.id) {
+      venta.customerId = customerSale.id;
+      venta.customer = {
+        customerId: customerSale.id,
+        documentNumber: customerSale.documentNumber,
+        names: customerSale.names
+      };
+    }
+
+    console.log("venta ..:", venta);
+
+    dispatch(createSale(venta));
   }
+
+  useEffect(() => {
+    console.log('useEffect sale ...:', isError, isSuccess, message);
+    console.log('formDataSale ...:', formDataSale);
+    console.log('sale ...:', sale);
+    //console.log('venta ...:', venta);
+
+    if (isError) {
+      refInputCode.current.focus();
+      Message(message, "error");
+    }
+
+    if (isSuccess) {
+      console.log("Venta registrada exitosamente!");
+      Message("Venta registrada exitosamente!", "success");
+      console.log("Realizar impresión del documento!");
+
+      // Preparar datos para impresión
+      const datosImpresion = {
+        products: productsSale.map(p => ({
+          quantity: p.quantity,
+          description: p.description,
+          price: p.price,
+          total: Number(p.price) * Number(p.quantity)
+        })),
+        payments: payments,
+        customerSale: customerSale,
+        date: new Date(),
+        subtotalAmount: totalVenta / 1.18,
+        taxAmount: totalVenta - (totalVenta / 1.18),
+        totalAmount: totalVenta,
+        changeAmount: montoVuelto,
+        documentType: documentType
+      };
+
+      setVentaImprimir(datosImpresion);
+
+      console.log("Realizar impresión del documento2!");
+
+      // Imprimir después de que el componente se monte
+      // funciona con react-to-print o de forma directa
+      setTimeout(() => {
+        console.log('boletaRef.current ..:', boletaRef.current)
+        if (boletaRef.current) {
+          handlePrint();
+        }
+      }, 500);
+
+      limpiarVenta();
+    }
+
+  }, [isError, isSuccess, message, dispatch]);
 
   // Estado para el modal de pagos
   const [modalPagoIsOpen, setModalPagoIsOpen] = useState(false);
@@ -617,7 +979,7 @@ function Category() {
 
   const refInputMontoPagar = useRef(null);
 
-  
+
   useEffect(() => {
     if (modalPagoIsOpen) {
       setTimeout(() => {
@@ -625,8 +987,8 @@ function Category() {
           refInputMontoPagar.current.focus();
         }
       }, 100); // 100ms suele ser suficiente
-  }
-  }, [modalPagoIsOpen]);  
+    }
+  }, [modalPagoIsOpen]);
 
 
   //const [montoPago, setMontoPago] = useState("");
@@ -638,21 +1000,21 @@ function Category() {
 
   // Agregar pago
   const agregarPago = () => {
-    if (!montoPago || isNaN(montoPago) || Number(montoPago) <= 0){
+    if (!montoPago || isNaN(montoPago) || Number(montoPago) <= 0) {
       refInputMontoPagar.current.focus();
       return;
-    } 
+    }
 
     setFormDataSale((prevState) => ({
-        ...prevState,
-        payments: [
-          ...prevState.payments,
-          {
-            montoPago: Number(montoPago),
-            codigoOperacion: codigoOperacion,
-            metodoPago: metodoPago,
-          },
-        ],
+      ...prevState,
+      payments: [
+        ...prevState.payments,
+        {
+          montoPago: Number(montoPago),
+          codigoOperacion: codigoOperacion,
+          metodoPago: metodoPago,
+        },
+      ],
     }));
 
     //setPagos([...pagos, { monto: Number(montoPago), metodo: metodoPago }]);
@@ -705,8 +1067,169 @@ function Category() {
       }
     }
 
-  
+
   }
+
+  //////////////////// Logica para manejar el modal de cliente ////////////////////
+  // Estado para el modal de pagos
+  const [modalCustomerIsOpen, setModalCustomerPagoIsOpen] = useState(false);
+
+
+
+  const [formDataCustomer, setFormDataCustomer] = useState(initialStateCustomer);
+  const { documentNumberCustomer, names, email, address, cellphone } = formDataCustomer;
+
+  const refInputDocumentCustomer = useRef(null);
+  const refInputNames = useRef(null);
+
+
+  const {
+    customers,
+    customer,
+    isLoading: isLoadingCustomer,
+    isSuccessGet: isSuccessGetCustomer,
+    isSuccess: isSuccessCustomer,
+    message: messageCustomer,
+    isError: isErrorCustomer,
+  } = useSelector((state) => state.customer);
+
+
+  // useEffect to handle customers.
+  useEffect(() => {
+    console.log("useEffect customers ...", customers, customer, isSuccessGetCustomer, isSuccessCustomer);
+
+    if (isSuccessCustomer) {
+
+      setFormDataSale((prevState) => ({
+        ...prevState,
+        customerId: customer._id,
+        customerSale: {
+          id: customer._id,
+          documentNumber: customer.documentNumber,
+          names: customer.names,
+        }
+      }));
+
+      Message('Cliente registrado y asignado a la venta.', "info");
+      setModalCustomerPagoIsOpen(false);
+      //closeModalCustomer();
+
+    }
+
+    if (isSuccessGetCustomer) {
+      if (customers.length > 0) {
+        setFormDataCustomer({
+          documentNumberCustomer: customers[0].documentNumber,
+          names: customers[0].names,
+          email: customers[0].email,
+          address: customers[0].address,
+          cellphone: customers[0].cellphone
+        });
+        Message('Cliente encontrado!!', "info");
+      } else {
+        Message('Cliente no registrado!! Ingresar sus datos y guardar.', "info");
+      }
+    }
+
+  }, [customers, customer, isSuccessCustomer, isSuccessGetCustomer, dispatch]);
+
+  // useEffect to handle customers.
+  /*
+  useEffect(() => {
+    console.log("useEffect customer ...", customer, isSuccessCustomer);
+    if (isSuccessCustomer) {
+
+      setFormDataSale((prevState) => ({
+        ...prevState,
+        customerId: customer._id,
+        customer: {
+          id: customer._id,
+          documentNumber: customer.documentNumber,
+          names: customer.names,
+        }
+      }));
+
+      Message('Cliente registrado y asignado a la venta.', "info");
+
+    }
+  }, [customer, isSuccessCustomer, dispatch]);
+  */
+
+
+  const onSubmitCustomer = (e) => {
+    e.preventDefault();
+    console.log('onSubmitCustomer');
+  };
+
+  const onKeyDownDocument = (e) => {
+    console.log("onKeyDownDocument ..:", e);
+    const { value = "" } = e.target;
+    //if (e.key === 'Enter') {
+    console.log("get product ..:", value);
+    if (!isNaN(value.trim()) && value.trim() !== "" && e.key === "Enter") {
+
+      dispatch(getCustomers({ documentNumber: value.trim() }));
+
+    }
+  };
+
+  const openModalCustomer = () => {
+    setModalCustomerPagoIsOpen(true);
+    setFormDataCustomer(initialStateCustomer);
+    // no puede darle el foco al input de documento porque no se ha renderizado el modal
+    refInputDocumentCustomer.current.focus();
+  }
+  const closeModalCustomer = () => {
+    setFormDataCustomer(initialStateCustomer);
+    dispatch(resetCustomers());
+    setModalCustomerPagoIsOpen(false);
+    refInputCode.current.focus();
+  };
+
+  const cleanDataCustomer = () => {
+    setFormDataCustomer(initialStateCustomer);
+    dispatch(resetCustomers());
+    if (refInputDocumentCustomer.current) {
+      refInputDocumentCustomer.current.focus();
+    }
+  };
+
+  const assignCustomer = () => {
+    console.log("assignCustomer ...");
+    if (customers.length === 0) {
+
+      if (documentNumberCustomer.trim() === "" ||
+        names.trim() === "") {
+        Message("Debe ingresar los datos del cliente!", "error");
+        return;
+      }
+
+
+      dispatch(createCustomer({
+        documentNumber: documentNumberCustomer.trim(),
+        names: names.trim(),
+        email: email.trim(),
+        address: address.trim(),
+        cellphone: cellphone.trim()
+
+      }));
+
+      return;
+    }
+    setFormDataSale((prevState) => ({
+      ...prevState,
+      customerId: customers[0]._id,
+      customerSale: {
+        id: customers[0]._id,
+        documentNumber: customers[0].documentNumber,
+        names: customers[0].names,
+      }
+    }));
+    closeModalCustomer();
+  }
+
+  const isCustomerFound = customers.length > 0;
+
 
 
   if (isLoading) {
@@ -716,7 +1239,6 @@ function Category() {
   return (
     <div className="ventas">
       <div className="venta">
-     
 
         <div className="form-group">
           <div className="search-container">
@@ -760,7 +1282,7 @@ function Category() {
                 )}
               </div>
             )}
-          </div>         
+          </div>
         </div>
 
 
@@ -824,7 +1346,7 @@ function Category() {
               </div>
             </div>
 
-            
+
           ))}
         </div>
 
@@ -840,20 +1362,20 @@ function Category() {
 
       <div className="teclado">
 
-        <button className="btn btn-extra btn-col-4">Cerrar Caja</button>
+        <button className="btn btn-extra btn-col-4" onClick={handleCerrarCaja}>Cerrar Caja</button>
 
-        <button className="btn btn-extra btn-col-2">Cliente</button>
+        <button className="btn btn-extra btn-col-2" onClick={agregarCliente}>{customerSale.names ? `Cliente: ${customerSale.names.split(' ')[0]}` : 'Cliente'}</button>
         <select
-    className="btn btn-extra btn-col-2"
-    name="documentType"
-    value={documentType}
-    onChange={onChange}
-    style={{ width: "120px", marginRight: "8px" }}
-  >
-    <option value="BOLETA">Boleta</option>
-    <option value="FACTURA">Factura</option>
-    <option value="TICKET">Ticket</option>
-  </select>
+          className="btn btn-extra btn-col-2"
+          name="documentType"
+          value={documentType}
+          onChange={onChange}
+          style={{ width: "120px", marginRight: "8px" }}
+        >
+          <option value="BOLETA">Boleta</option>
+          <option value="FACTURA">Factura</option>
+          <option value="TICKET">Ticket</option>
+        </select>
 
         <button className="btn"> 7 </button>
         <button className="btn"> 8 </button>
@@ -879,18 +1401,20 @@ function Category() {
           <FaBackspace />{" "}
         </button>
 
-        
+
         <button className="btn btn-extra btn-col-2">Recuperar</button>
         <button className="btn btn-extra btn-col-2" onClick={limpiarVenta}>Limpiar</button>
         <button className="btn btn-extra btn-col-4" onClick={agregarPagos}>Pagar</button>
-        
+
 
       </div>
 
-      <Modal isOpen={modalIsOpen} style={customStyles} contentLabel="Nuevo POS">
+      <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStyles} contentLabel="Nuevo POS">
         <h3>Apertura de Punto de Venta</h3>
         <hr></hr>
-
+        <button className='btn-close' onClick={closeModal}>
+          X
+        </button>
         <br></br>
 
         <section className="form">
@@ -967,7 +1491,7 @@ function Category() {
               onChange={onChange}
               onKeyDown={onKeyDownMontoPago}
               placeholder="Monto a pagar"
-              required            
+              required
               style={{ width: "30%" }}
               ref={refInputMontoPagar}
             />
@@ -979,10 +1503,10 @@ function Category() {
               onChange={onChange}
               onKeyDown={onKeyDownCodigoOperacion}
               placeholder="Código operacion"
-              required            
+              required
               style={{ width: "40%" }}
             />
-            
+
             <button
               className="btn"
               type="button"
@@ -992,12 +1516,12 @@ function Category() {
                 fontWeight: "bold"//,
                 //cursor: montoPagado >= totalVenta ? "pointer" : "not-allowed"
               }}
-              onClick={montoPagado >= totalVenta ? pagar: agregarPago}
+              onClick={montoPagado >= totalVenta ? pagar : agregarPago}
             >
               {montoPagado >= totalVenta ? "Pagar" : "Agregar"}
             </button>
-            
-            
+
+
           </div>
         </div>
         <div className="form-group">
@@ -1012,9 +1536,38 @@ function Category() {
           <div className="pagos-scroll">
             {payments.map((pago, index) => (
               <div className="lista-pagos" key={index}>
-                <div>{pago.metodoPago}</div>
+                <div>
+
+                  <select
+                    className="form-control"
+                    name="metodoPago"
+                    value={pago.metodoPago}
+                    onChange={e => onChangePaymentMethod(index, e)}
+                    style={{ height: "20px", fontSize: "12px", padding: "2px 5px" }}
+                  >
+
+
+                    {paymentMethods.map((paymentMethod) => (
+                      <option key={paymentMethod.name} value={paymentMethod.name}>
+                        {paymentMethod.name}
+                      </option>
+                    ))}
+
+                  </select>
+
+
+                </div>
                 <div>{pago.montoPago}</div>
-                <div>{pago.codigoOperacion}</div>
+                <div>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={pago.codigoOperacion}
+                    onChange={e => onChangeCodigoOperacion(index, e)}
+                    placeholder="Código operación"
+                    style={{ height: "20px", fontSize: "12px", padding: "2px 5px" }}
+                  />
+                </div>
                 <div>
                   <button onClick={() => handleDeletePayment(index)} style={{ border: 'none', background: 'none' }}>
                     <MdDelete color="black" />
@@ -1026,31 +1579,249 @@ function Category() {
 
           {/* Resumen de pagos */}
           <div style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                fontWeight: "bold",
-                fontSize: "15px",
-                marginTop: "16px",
-                borderTop: "1px solid #eee",
-                paddingTop: "10px",
-                background: "#fff"
-              }}>
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontWeight: "bold",
+            fontSize: "14px",
+            marginTop: "16px",
+            borderTop: "1px solid #eee",
+            paddingTop: "10px",
+            background: "#fff"
+          }}>
             <span>Total a pagar: S/. {totalVenta.toFixed(2)}</span>
-            <span>Monto pagado: S/. {montoPagado.toFixed(2)}</span>
-            <span>
+            <span style={{ color: "#007bff" }}>Monto pagado: S/. {montoPagado.toFixed(2)}</span>
+            <span style={{ color: montoRestante > 0 ? "red" : "green" }}>
               {montoRestante > 0
-              ? <>Monto restante: S/. {montoRestante.toFixed(2)}</>
-              : <>Vuelto: S/. {montoVuelto.toFixed(2)}</>
-              } 
+                ? <>Monto restante: S/. {montoRestante.toFixed(2)}</>
+                : <>Vuelto: S/. {montoVuelto.toFixed(2)}</>
+              }
             </span>
           </div>
 
-        </div>          
-        
+        </div>
+
       </Modal>
+
+      <Modal isOpen={modalCustomerIsOpen} onRequestClose={closeModalCustomer} style={customStyles} contentLabel='Cliente'>
+        <h3>Busqueda de Cliente</h3>
+        <hr></hr>
+
+        <button className='btn-close' onClick={closeModalCustomer}>
+          X
+        </button>
+        <br></br>
+
+        <section className="form">
+          <div className="form-group">
+            <table style={{ width: '100%' }}>
+              <colgroup>
+                <col style={{ width: '30%' }} />
+                <col style={{ width: '70%' }} />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <td>
+                    <label htmlFor="name">Documento ..:</label>
+                  </td>
+                  <td>
+
+                    <input
+                      type='text'
+                      className='form-control'
+                      id='documentNumberCustomer'
+                      name='documentNumberCustomer'
+                      value={documentNumberCustomer}
+                      onChange={onChange}
+                      onKeyDown={onKeyDownDocument}
+                      placeholder='Ingrese documento'
+                      required
+                      ref={refInputDocumentCustomer}
+                      disabled={isCustomerFound}
+                    />
+
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <label htmlFor="name">Nombres ..:</label>
+                  </td>
+                  <td>
+                    <input
+                      type='text'
+                      className='form-control'
+                      id='names'
+                      name='names'
+                      value={names}
+                      onChange={onChange}
+                      placeholder='Ingrese nombres completos'
+                      required
+                      ref={refInputNames}
+                      disabled={isCustomerFound}
+                    />
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <label htmlFor="name">Correo ..:</label>
+                  </td>
+                  <td>
+                    <input
+                      type='text'
+                      className='form-control'
+                      id='email'
+                      name='email'
+                      value={email}
+                      onChange={onChange}
+                      placeholder='Ingrese correo'
+                      disabled={isCustomerFound}
+                    />
+
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <label htmlFor="name">Dirección ..:</label>
+                  </td>
+                  <td>
+                    <input
+                      type='text'
+                      className='form-control'
+                      id='address'
+                      name='address'
+                      value={address}
+                      onChange={onChange}
+                      placeholder='Ingrese dirección'
+                      disabled={isCustomerFound}
+                    />
+
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <label htmlFor="name">Celular ..:</label>
+                  </td>
+                  <td>
+                    <input
+                      type='text'
+                      className='form-control'
+                      id='cellphone'
+                      name='cellphone'
+                      value={cellphone}
+                      onChange={onChange}
+                      placeholder='Ingrese celular'
+                      disabled={isCustomerFound}
+                    />
+
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="form-group">
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button className="btn btn-block" onClick={cleanDataCustomer}>Reiniciar búsqueda</button>
+              <button className="btn btn-block" onClick={assignCustomer}>{customers.length === 0 ? 'Registrar y Asignar' : 'Asignar'}</button>
+            </div>
+          </div>
+        </section>
+
+      </Modal>
+
+      <Modal
+        isOpen={modalCierreIsOpen}
+        onRequestClose={() => setModalCierreIsOpen(false)}
+        style={customStyles}
+        contentLabel="Resumen Previo al Cierre"
+      >
+
+
+        {/* Alerta visual */}
+        <div style={{
+          backgroundColor: "#fff3cd",
+          padding: "10px",
+          borderRadius: "5px",
+          marginBottom: "15px",
+          border: "1px solid #ffeaa7",
+          textAlign: "center"
+        }}>
+          <strong>📊 Revise el resumen antes de confirmar el cierre</strong>
+        </div>
+        <hr />
+
+        {resumenCierre ? (
+          <div>
+            <p><b>Total ventas:</b> {resumenCierre.totalSales}</p>
+            <p><b>Monto inicial:</b> S/. {Number(resumenCierre.initialAmount).toFixed(2)}</p>
+            <p><b>Monto total ventas:</b> S/. {Number(resumenCierre.totalAmount).toFixed(2)}</p>
+            <p><b>Monto final:</b> S/. {Number(resumenCierre.finalAmount).toFixed(2)}</p>
+            <p><b>Monto vuelto Efectivo:</b> S/. {Number(resumenCierre.totalChangeAmount).toFixed(2)}</p>
+            <hr />
+            <h4>Por método de pago:</h4>
+            <ul>
+              <li>Efectivo: S/. {Number(resumenCierre.paymentMethods?.cash || 0).toFixed(2)}</li>
+              <li>Tarjeta: S/. {Number(resumenCierre.paymentMethods?.card || 0).toFixed(2)}</li>
+              <li>Transferencia: S/. {Number(resumenCierre.paymentMethods?.transfer || 0).toFixed(2)}</li>
+              <li>Billetera digital: S/. {Number(resumenCierre.paymentMethods?.digitalWallet || 0).toFixed(2)}</li>
+              <li>Otros: S/. {Number(resumenCierre.paymentMethods?.others || 0).toFixed(2)}</li>
+            </ul>
+          </div>
+        ) : (
+          <p>No hay datos de cierre.</p>
+        )}
+
+        {/* ✅ Contenedor flex para los botones */}
+        <div style={{
+          display: "flex",
+          gap: "10px",
+          marginTop: "20px",
+          justifyContent: "center" // Opcional: centrar los botones
+        }}>
+          <button
+            className="btn"
+            onClick={cancelarCierre}
+            style={{
+              flex: 1,
+              backgroundColor: "#6c757d",
+              color: "white"
+            }} // Opcional: que ocupen el mismo ancho
+          >
+            ❌ Cancelar
+          </button>
+          <button
+            className="btn btn-danger"
+            onClick={confirmarCierre}
+            style={{
+              flex: 1,
+              backgroundColor: "#dc3545",
+              color: "white"
+            }}
+            disabled={!resumenCierre}
+          >
+            ✅ Confirmar Cierre
+          </button>
+        </div>
+
+
+      </Modal>
+
+      {ventaImprimir &&
+
+        <div style={{ display: "none" }}>
+          <BoletaPrint ref={boletaRef} venta={ventaImprimir} />
+        </div>
+
+      }
+
     </div>
+
+
   );
+
 }
 
-export default Category;
+export default Ventas;

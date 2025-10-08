@@ -24,7 +24,7 @@ const createProduct = async (productData, { token, store }) => {
 };
 
 //Update product
-const updateProduct = async (productData, token) => {
+const updateProduct = async (productData, { token, store }) => {
   console.log('token ..:', token);
   console.log('productData ..:', productData);
   const config = {
@@ -33,7 +33,12 @@ const updateProduct = async (productData, token) => {
     }
   };
 
-  const response = await axios.put(`${API_URL}${productData.id}`, { payload: productData }, config);
+  const response = await axios.put(`${API_URL}${productData.id}`, {
+    payload: {
+      ...productData,
+      store: store.id
+    }
+  }, config);
   console.log('response ..:', response);
 
   return response.data;

@@ -21,6 +21,7 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/products/', require('./routes/productRoutes'));
 app.use('/api/measures/', require('./routes/measureRoutes'));
 app.use('/api/profiles/', require('./routes/profileRoutes'));
+app.use('/api/categories/', require('./routes/categoryRoutes'));
 
 app.use('/api/masters/', require('./routes/masterRoutes'));
 app.use('/api/stores/', require('./routes/storeRoutes'));
@@ -30,6 +31,7 @@ app.use('/api/reasons-transaction/', require('./routes/reasonTransactionRoutes')
 
 app.use('/api/pos/', require('./routes/posRoutes'));
 app.use('/api/pos-shift/', require('./routes/posShiftRoutes'));
+app.use('/api/sales/', require('./routes/saleRoutes'));
 
 // Server Frontend
 console.log('antes de servir');

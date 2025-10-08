@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 
 const User = require('../models/userModel.js');
 const Inventory = require('../models/inventoryModel.js');
+const ProductStock = require('../models/productStockModel.js');
 
 
 // @desc    Create inventory
@@ -28,8 +29,8 @@ const createInventory = asyncHandler(async (req, res) => {
         }
 
         return {
-            store,
-            product: product.productId,
+            storeId: store,
+            productId: product.productId,
             transactionType,
             reasonTransaction,
             quantity: product.quantity,
@@ -37,11 +38,21 @@ const createInventory = asyncHandler(async (req, res) => {
             cost: product.cost || 0,
             document,
             transactionDate,
-            user: req.id
+            createdBy: req.id
         };
     });
 
     const inventory = await Inventory.insertMany(inventoryItems);
+
+    // Actualizar el stock por cada producto
+    for (const item of inventoryItems) {
+        const incValue = item.transactionType === 'ENTRADA' ? item.quantity : -item.quantity;
+        await ProductStock.findOneAndUpdate(
+            { productId: item.productId, storeId: item.storeId },
+            { $inc: { stock: incValue } },
+            { new: true, upsert: true }
+        );
+    }
 
     console.log('inventory ..:', inventory);
 

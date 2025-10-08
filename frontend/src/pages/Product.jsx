@@ -22,6 +22,7 @@ import {
 import { getMeasures } from "../features/measures/measureSlice";
 import { getMastersByTypes } from "../features/masters/masterSlice";
 import { registerInventory } from "../features/inventories/inventorySlice";
+import { getCategories } from "../features/categories/categorySlice";
 
 /* components */
 import Spinner from '../components/Spinner';
@@ -51,6 +52,7 @@ const initialState = {
   description: '',
   measure: '',
   price: 0,
+  cost: 0,
   stock: 0,
   minimumStock: 0,
   display: '',
@@ -80,11 +82,17 @@ function Product() {
   );
   initialState.measure = (measures[0] || {}).abbreviation;
 
+  const { categories } = useSelector(
+    (state) => state.category
+  );
+
+  initialState.category = (categories[0] || {}).name;
+
   const { masters } = useSelector(
     (state) => state.master
   );
   initialState.display = (masters.filter(({ type }) => type === 'PRESENTACION')[0] || {}).name;
-  initialState.category = (masters.filter(({ type }) => type === 'CATEGORIA')[0] || {}).name;
+  //initialState.category = (masters.filter(({ type }) => type === 'CATEGORIA')[0] || {}).name;
 
   console.log('measures 2 ...', measures);
   console.log('masters 2 ...', masters);
@@ -92,7 +100,7 @@ function Product() {
   const [formData, setFormData] = useState(initialState);
 
   const { code, description, measure,
-    display, price, stock,
+    display, price, cost, stock,
     category, minimumStock, taxFree,
     discount, requiresParameter
   } = formData;
@@ -129,6 +137,7 @@ function Product() {
       } else {
         Message('Producto creado exitosamente!');
         // registrar el stock en inventario si es un nuevo producto.
+        /*
         if (stock > 0) {
           dispatch(registerInventory({
             //product: newProductId, quantity: stock,
@@ -144,6 +153,7 @@ function Product() {
             ]
           }));
         }
+        */
       }
 
     }
@@ -155,7 +165,8 @@ function Product() {
     console.log('useEffect 2 ...');
     dispatch(getProduct());
     dispatch(getMeasures());
-    dispatch(getMastersByTypes(['PRESENTACION', 'CATEGORIA']));
+    dispatch(getMastersByTypes(['PRESENTACION']));
+    dispatch(getCategories());
   }, []);
 
   // useEffect to handle items by page.
@@ -185,6 +196,7 @@ function Product() {
         measure: product.measure,
         display: product.display,
         price: product.price,
+        cost: product.cost,
         stock: product.stock,
         category: product.category,
         minimumStock: product.minimumStock,
@@ -213,11 +225,12 @@ function Product() {
         return;
       }
     }
-    if (name === 'price' || name === 'stock' || name === 'minimumStock') {
+    if (name === 'price' || name === 'cost' || name === 'stock' || name === 'minimumStock') {
       if (isNaN(value) || value.includes(' ')) {
         return;
       }
     }
+
     setFormData((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value
@@ -251,40 +264,41 @@ function Product() {
     if (product._id) {
       dispatch(updateProduct({
         id: product._id,
-        code,
-        description,
+        //code,
         measure,
+        description,
         display,
+        //category,
         price,
-        stock,
-        category,
-        minimumStock,
+        cost,
         taxFree,
         discount,
-        requiresParameter
+        requiresParameter,
+        //stock,        
+        minimumStock,
+
       }));
     } else {
       dispatch(createProduct({
         code,
-        description,
         measure,
+        description,
         display,
-        price,
-        stock,
         category,
-        minimumStock,
+        price,
+        cost,
         taxFree,
         discount,
-        requiresParameter
+        requiresParameter,
+        stock,
+        minimumStock,
       }));
     }
 
   };
 
-  const onEditar = (e) => {
-    console.log('onEditar  ...', e.target.id);
-    const product = products.find((product) => product._id == e.target.id);
-    console.log('onEditar product ...', product);
+  const onEditar = (idProduct) => {
+    const product = products.find((product) => product._id == idProduct);
     if (product) {
       dispatch(setProduct(product));
       openModal();
@@ -357,6 +371,7 @@ function Product() {
             <div>Descripción</div>
             <div>Medida Venta</div>
             <div>Precio</div>
+            <div>Costo</div>
             <div>Stock</div>
             <div>Presentación</div>
             <div>Editar</div>
@@ -368,9 +383,16 @@ function Product() {
               <div>{product.description}</div>
               <div> {product.measure}</div>
               <div> {product.price}</div>
+              <div> {product.cost}</div>
               <div> {product.stock}</div>
               <div> {product.display}</div>
-              <div><AiTwotoneEdit onClick={onEditar} id={product._id} /> </div>
+              <div>
+
+                <button onClick={() => onEditar(product._id)} style={{ border: 'none', background: 'none' }}>
+                  <AiTwotoneEdit color="black" />
+                </button>
+
+              </div>
 
             </div>
           ))}
@@ -418,8 +440,7 @@ function Product() {
                         name='code'
                         value={code}
                         onChange={onChange}
-                        placeholder='Ingrese código de producto'
-                        required />
+                        placeholder='Ingrese código de producto' />
 
                     </td>
                   </tr>
@@ -458,44 +479,25 @@ function Product() {
 
                     </td>
                   </tr>
-                  {!product._id &&
-                    <tr>
-                      <td>
-                        <label htmlFor="name">Stock ..:</label>
-                      </td>
-                      <td>
-                        <input
-                          type='text'
-                          className='form-control'
-                          id='stock'
-                          name='stock'
-                          value={stock}
-                          onChange={onChange}
-                          placeholder='Ingresar stock del producto'
-                          required />
-
-                      </td>
-                    </tr>
-
-                  }
 
                   <tr>
                     <td>
-                      <label htmlFor="name">Stock mínimo ..:</label>
+                      <label htmlFor="name">costo ..:</label>
                     </td>
                     <td>
                       <input
                         type='text'
                         className='form-control'
-                        id='minimumStock'
-                        name='minimumStock'
-                        value={minimumStock}
+                        id='cost'
+                        name='cost'
+                        value={cost}
                         onChange={onChange}
-                        placeholder='Ingresar stock minimo del producto'
-                        required />
+                        placeholder='Ingresar costo del producto'
+                      />
 
                     </td>
                   </tr>
+
 
                   <tr>
                     <td>
@@ -555,14 +557,54 @@ function Product() {
                         value={category}
                         onChange={onChange}
                         className='form-control'>
+
                         {
-                          masters
-                            .filter(({ type }) => type === 'CATEGORIA')
-                            .map((master) => {
-                              return <option key={master._id} id={master._id} value={master.name}>{master.name}</option>
-                            })
+                          categories.map((category) => {
+                            return <option key={category._id} id={category._id} value={category.name}>{category.name}</option>
+                          })
                         }
                       </select>
+
+                    </td>
+                  </tr>
+
+                  {/* Línea separadora */}
+                  <tr>
+                    <td colSpan={2}><hr /></td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <label htmlFor="name">Stock ..:</label>
+                    </td>
+                    <td>
+                      <input
+                        type='text'
+                        className='form-control'
+                        id='stock'
+                        name='stock'
+                        value={stock}
+                        onChange={onChange}
+                        placeholder='Ingresar stock del producto'
+                        required
+                        disabled={!!product._id} />
+
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <label htmlFor="name">Stock mínimo ..:</label>
+                    </td>
+                    <td>
+                      <input
+                        type='text'
+                        className='form-control'
+                        id='minimumStock'
+                        name='minimumStock'
+                        value={minimumStock}
+                        onChange={onChange}
+                        placeholder='Ingresar stock minimo del producto'
+                        required />
 
                     </td>
                   </tr>

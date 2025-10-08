@@ -728,7 +728,7 @@ footer {
   */
 
 .pagos-scroll {
-  max-height: 100px; /* Ajusta el alto según tu diseño */
+  max-height: 150px; /* Ajusta el alto según tu diseño */
   overflow-y: auto;
   margin-bottom: 0;
 }

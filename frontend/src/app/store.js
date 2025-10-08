@@ -5,6 +5,7 @@ import measureReducer from '../features/measures/measureSlice';
 import profileReducer from '../features/profiles/profileSlice';
 import masterReducer from '../features/masters/masterSlice';
 import storeReducer from '../features/stores/storeSlice';
+import categoryReducer from '../features/categories/categorySlice';
 import saleReducer from '../features/products/saleSlice';
 import userReducer from '../features/auth/userSlice';
 import inventoryReducer from '../features/inventories/inventorySlice';
@@ -23,6 +24,7 @@ export const store = configureStore({
     sale: saleReducer,
     user: userReducer,
     store: storeReducer,
+    category: categoryReducer,
     inventory: inventoryReducer,
     reasonTransaction: reasonTransactionReducer,
     pos: posReducer,

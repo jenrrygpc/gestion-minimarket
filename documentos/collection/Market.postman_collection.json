@@ -1,0 +1,974 @@
+{
+	"info": {
+		"_postman_id": "25d7f04f-5034-4405-8f17-d1f911654417",
+		"name": "Market",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4249623"
+	},
+	"item": [
+		{
+			"name": "Customer",
+			"item": [
+				{
+					"name": "get customers",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTc0ODgzNDQyMywiZXhwIjoxNzQ4OTIwODIzfQ.gwQQQUZNX0FYbuB5fa4OyROYX4qO4-0MAaTPLTHDfeM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MGRmMzFmN2IyOTU1MDNjMjJhNzE1NiIsImlhdCI6MTcxMjE5MDU5NSwiZXhwIjoxNzEyMjc2OTk1fQ.QbxHVG1alnuLp5vx92_Tf4oTtEqjA9JL6hdrbUyfZeA",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/customers?documentNumber=42507550",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"customers"
+							],
+							"query": [
+								{
+									"key": "documentNumber",
+									"value": "42507550"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update customer",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTc0ODgzNDQyMywiZXhwIjoxNzQ4OTIwODIzfQ.gwQQQUZNX0FYbuB5fa4OyROYX4qO4-0MAaTPLTHDfeM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MGRmMzFmN2IyOTU1MDNjMjJhNzE1NiIsImlhdCI6MTcxMjE5MDU5NSwiZXhwIjoxNzEyMjc2OTk1fQ.QbxHVG1alnuLp5vx92_Tf4oTtEqjA9JL6hdrbUyfZeA",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/customers?documentNumber=42507550",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"customers"
+							],
+							"query": [
+								{
+									"key": "documentNumber",
+									"value": "42507550"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "save new customer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTc0ODgzNDQyMywiZXhwIjoxNzQ4OTIwODIzfQ.gwQQQUZNX0FYbuB5fa4OyROYX4qO4-0MAaTPLTHDfeM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MGRmMzFmN2IyOTU1MDNjMjJhNzE1NiIsImlhdCI6MTcxMjE5MDU5NSwiZXhwIjoxNzEyMjc2OTk1fQ.QbxHVG1alnuLp5vx92_Tf4oTtEqjA9JL6hdrbUyfZeA",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"payload\":{\r\n        \"documentNumber\": \"30663625\",\r\n        \"names\": \"Bautista Cacya Rojas\",\r\n        \"address\": \"Dean valdivia sector 13 Mz. H Lote 3\",\r\n        \"cellphone\": \"987167849\",\r\n        \"email\": \"bautista.cacya@gmail.com\",\r\n        \"enabled\": true\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/api/customers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"customers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "http://localhost:5000/api/profiles",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MGRmMzFmN2IyOTU1MDNjMjJhNzE1NiIsImlhdCI6MTcxMjE5MDU5NSwiZXhwIjoxNzEyMjc2OTk1fQ.QbxHVG1alnuLp5vx92_Tf4oTtEqjA9JL6hdrbUyfZeA",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\":{\r\n        \"email\": \"micorreo3@gmail.com\",\r\n        \"password\": \"Pastrul0\",\r\n        \"name\": \"Marcos\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/profiles",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"profiles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/api/users/me",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTY5ODM4NDI0MCwiZXhwIjoxNjk4NDcwNjQwfQ.hm3S3dttMYoqd-85_rW2ixIsCYULBb7S8E8qhZmwcn8",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/users/me",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/api/masters?type=CATEGORIA",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTcxMzIxNzA1OSwiZXhwIjoxNzEzMzAzNDU5fQ.vuNjgSUi2bKg0jH3L-5-7avDrj8i_drqFrzp56Neaqc",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/masters?type=CATEGORIA",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"masters"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "aba",
+							"disabled": true
+						},
+						{
+							"key": "type",
+							"value": "CATEGORIA"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/api/masters/6520a589c55889b0927d5d1f",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTY5Njc4NTk1MywiZXhwIjoxNjk2ODcyMzUzfQ.BBbWfg1sXZuQew4S2NocWFaGoFsq2nvso0EakHYzz0Y",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\": {\r\n        \"enabled\": true,\r\n        \"description\": \"Producto de Licores y cervezas\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/masters/6520a589c55889b0927d5d1f",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"masters",
+						"6520a589c55889b0927d5d1f"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/api/users",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTcxMzIxNzA1OSwiZXhwIjoxNzEzMzAzNDU5fQ.vuNjgSUi2bKg0jH3L-5-7avDrj8i_drqFrzp56Neaqc",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/api/products/v2/",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczMTE4NzkwMiwiZXhwIjoxNzMxMjc0MzAyfQ.Ozl03F2L1GB07n4kOV4Ocs4jrE2qPpGeaQxFcl9W3L4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\":{\r\n        \"measure\": \"6451cefab81b93637f885466\",\r\n        \"store\": \"664c2388553eb912694caa91\",\r\n        \"code\": 10002,\r\n        \"description\": \"Detergente Ace 3K\",\r\n        \"price\": 28.50,\r\n        \"display\": \"Bolsa\",\r\n        \"category\": \"Limpieza\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:5000/api/users/login",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MzA0ZDA1OWE2ZTMyNzNkNDczN2Y5NCIsImlhdCI6MTY4MDg4ODM3MCwiZXhwIjoxNjgwOTc0NzcwfQ.txmzBeKffbxPW8FK2jccY_EPCiiKKj-Ou-5nEgIx39Y",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\":{\r\n        \"name\": \"jenrry\",\r\n        \"email\": \"jenrrypc@gmail.com\",\r\n        \"password\": \"12345\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "find product by code",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczMTE4NzkwMiwiZXhwIjoxNzMxMjc0MzAyfQ.Ozl03F2L1GB07n4kOV4Ocs4jrE2qPpGeaQxFcl9W3L4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/products?code=10002",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products"
+					],
+					"query": [
+						{
+							"key": "code",
+							"value": "10002"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "find product by description",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczMTE4NzkwMiwiZXhwIjoxNzMxMjc0MzAyfQ.Ozl03F2L1GB07n4kOV4Ocs4jrE2qPpGeaQxFcl9W3L4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/products?description=Jabon",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products"
+					],
+					"query": [
+						{
+							"key": "description",
+							"value": "Jabon"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sabe new product",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczMTE4NzkwMiwiZXhwIjoxNzMxMjc0MzAyfQ.Ozl03F2L1GB07n4kOV4Ocs4jrE2qPpGeaQxFcl9W3L4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\":{\r\n        \"measure\": \"6451cefab81b93637f885466\",\r\n        \"store\": \"664c2388553eb912694caa91\",\r\n        \"code\": 10002,\r\n        \"description\": \"Detergente Ace 3K\",\r\n        \"price\": 28.50,\r\n        \"display\": \"Bolsa\",\r\n        \"category\": \"Limpieza\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update products",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNjE4OTY1NCwiZXhwIjoxNzM2Mjc2MDU0fQ.eifv3B8AZXKrK-GlpSfBk1WXBqvhdgd4durayq5R8No",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\": [\r\n        {\r\n            \"id\": \"675f116d14126d48b00b63c6\",\r\n            \"quantity\": 5,\r\n            \"price\": 15,\r\n            \"cost\": 10\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/update-stock",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"update-stock"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update product",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczMTE4NzkwMiwiZXhwIjoxNzMxMjc0MzAyfQ.Ozl03F2L1GB07n4kOV4Ocs4jrE2qPpGeaQxFcl9W3L4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\":{\r\n        \"price\": 9.50\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/672fddae019ae590da6c644e",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"672fddae019ae590da6c644e"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0MzA0ZDA1OWE2ZTMyNzNkNDczN2Y5NCIsImlhdCI6MTY4MDg4ODM3MCwiZXhwIjoxNjgwOTc0NzcwfQ.txmzBeKffbxPW8FK2jccY_EPCiiKKj-Ou-5nEgIx39Y",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\":{\r\n        \"name\": \"jenrry\",\r\n        \"email\": \"jenrrypc@gmail.com\",\r\n        \"password\": \"12345\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "sabe new inventory",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNDI3ODU1NiwiZXhwIjoxNzM0MzY0OTU2fQ.N47ueOKBE_JdvusVdLJG2lzTqJNyk0tRi4ACUUCb8tI",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\": {\r\n        \"store\": \"123c2388553eb912694caa92\",\r\n        \"transactionType\": \"ENTRADA\",\r\n        \"reason\": \"Inventario inicial\",\r\n        \"document\": \"sin documento\",\r\n        \"products\": [\r\n            {\r\n                \"id\": \"6451cefab81b93637f885466\",\r\n                \"quantity\": 20,\r\n                \"price\": 5.90,\r\n                \"cost\": 6\r\n            }\r\n        ]\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/inventories/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"inventories",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "save new reason transaction",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNDU3MTE5NiwiZXhwIjoxNzM0NjU3NTk2fQ.NeJVf2_OoCJxmOve393garrAynnzvJLHvcFdAjCjwHM",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MGRmMzFmN2IyOTU1MDNjMjJhNzE1NiIsImlhdCI6MTcxMjE5MDU5NSwiZXhwIjoxNzEyMjc2OTk1fQ.QbxHVG1alnuLp5vx92_Tf4oTtEqjA9JL6hdrbUyfZeA",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\":{\r\n        \"name\": \"Venta\",\r\n        \"description\": \"Venta de productos\",\r\n        \"enabled\": true\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/reasons-transaction",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"reasons-transaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "save new master",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTY5ODM4NDI0MCwiZXhwIjoxNjk4NDcwNjQwfQ.hm3S3dttMYoqd-85_rW2ixIsCYULBb7S8E8qhZmwcn8",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\": {\r\n        \"type\": \"CATEGORIA\",\r\n        \"name\": \"Limpieza\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/masters/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"masters",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listar punto de venta",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNjMwMDQwMiwiZXhwIjoxNzM2Mzg2ODAyfQ.ZMh_eQNX54qMsdKC5lMg_P3SygumOHIL4GEkXQzYKUY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNjMwMDQwMiwiZXhwIjoxNzM2Mzg2ODAyfQ.ZMh_eQNX54qMsdKC5lMg_P3SygumOHIL4GEkXQzYKUY",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/pos/?name=caja 2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"pos",
+						""
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "caja 2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "listar turno de venta",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNjMwMDQwMiwiZXhwIjoxNzM2Mzg2ODAyfQ.ZMh_eQNX54qMsdKC5lMg_P3SygumOHIL4GEkXQzYKUY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNjMwMDQwMiwiZXhwIjoxNzM2Mzg2ODAyfQ.ZMh_eQNX54qMsdKC5lMg_P3SygumOHIL4GEkXQzYKUY",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/pos-shift/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"pos-shift",
+						""
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "caja 2",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "actualizar punto de venta",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNjMwMDQwMiwiZXhwIjoxNzM2Mzg2ODAyfQ.ZMh_eQNX54qMsdKC5lMg_P3SygumOHIL4GEkXQzYKUY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\": {\r\n        \"name\": \"Caja01\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/pos/677dd85b4ca5486d11f33baa",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"pos",
+						"677dd85b4ca5486d11f33baa"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "nuevo punto de venta",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNjMwMDQwMiwiZXhwIjoxNzM2Mzg2ODAyfQ.ZMh_eQNX54qMsdKC5lMg_P3SygumOHIL4GEkXQzYKUY",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\": {\r\n        \"name\": \"Caja 2\",\r\n        \"store\": \"664c2388553eb912694caa91\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/pos/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"pos",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "nuevo turno de venta",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNjMwMDQwMiwiZXhwIjoxNzM2Mzg2ODAyfQ.ZMh_eQNX54qMsdKC5lMg_P3SygumOHIL4GEkXQzYKUY",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1MDk4ZTkxMDFhMzU3YTYzZmFkZWEwOSIsImlhdCI6MTczNjMwMDQwMiwiZXhwIjoxNzM2Mzg2ODAyfQ.ZMh_eQNX54qMsdKC5lMg_P3SygumOHIL4GEkXQzYKUY",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"payload\": {\r\n        \"status\": \"ABIERTO\",\r\n        \"shiftStart\": \"2024-05-21T04:31:04\",\r\n        \"initialAmount\": 20,\r\n        \"idPos\": \"664c2388553eb912694caa91\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/pos-shift/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"pos-shift",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

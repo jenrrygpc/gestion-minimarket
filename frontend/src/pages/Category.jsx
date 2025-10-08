@@ -1,184 +1,189 @@
-import { useState, useEffect, useRef } from "react";
-import { toast } from "react-toastify";
+import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { FaSignInAlt } from "react-icons/fa";
-import { AiOutlineEdit, AiTwotoneEdit } from "react-icons/ai";
-import ReactPaginate from 'react-paginate';
 
+import { FaUser } from "react-icons/fa";
+import { TbNewSection } from "react-icons/tb";
+import { AiTwotoneEdit } from "react-icons/ai";
 import { useSelector, useDispatch } from "react-redux";
+import ReactPaginate from 'react-paginate'; // pagination library
 import {
-  reset, getMasters, setMaster,
-  createMaster, updateMaster,
-  resetCreate
-} from "../features/masters/masterSlice";
-import Spinner from '../components/Spinner';
+  createCategory, updateCategory, getCategories,
+  reset, setCategory, resetCategory
+} from "../features/categories/categorySlice";
 
+import Spinner from '../components/Spinner';
+import Message from '../components/Message';
+
+/* Ini: atributos para ventana modal */
+import Modal from 'react-modal';
+
+const customStyles = {
+  content: {
+    width: '600px',
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    position: 'relative'
+  },
+};
+
+Modal.setAppElement('#root');
+/* Fin: atributos para ventana modal */
 
 const initialState = {
   name: '',
   description: '',
-  enabled: true
+  prefix: ''
 }
-
 
 function Category() {
 
   // ini pagination states
   const [offset, setOffset] = useState(0);
-  const [mastersPage, setMastersPage] = useState([]);
+  const [categoriesPage, setCategoriesPage] = useState([]);
   const [perPage] = useState(5);
   const [pageCount, setPageCount] = useState(0);
   //fin pagination states
-  console.log('offset ...', offset);
-  console.log('mastersPage ...', mastersPage);
-  console.log('perPage ...', perPage);
-  console.log('pageCount ...', pageCount);
 
+  //state para establecer el texto de busqueda.
+  const [categorySearch, setCategorySearch] = useState('');
+
+  //state para abrir o cerrar el modal.
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+
+  console.log('initialState ..:', initialState);
   const [formData, setFormData] = useState(initialState);
 
-  //useRef is to focus into the component.
-  const refInputName = useRef(null);
-
-  const { name, description, enabled } = formData;
+  const { name, description, prefix } = formData;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {
-    master, masters, isError,
-    isSuccess, isLoading, message
-  } = useSelector(
-    (state) => state.master
+
+  const { category, categories, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.category
   );
 
-  console.log('masters ...', masters);
+  console.log('categories ..:', categories);
 
   useEffect(() => {
-    console.log('useEffect inicial ...');
-    dispatch(getMasters({
-      type: 'CATEGORIAS'
-    }));
-    refInputName.current.focus();
-  }, []);
-
-  useEffect(() => {
-    console.log('useEffect masters ...', masters);
-    setMastersPage(masters.slice(offset * perPage,
-      (offset + 1) * perPage));
-    setPageCount(Math.ceil(masters.length / perPage));
-  }, [masters]);
-
-  useEffect(() => {
-    console.log('useEffect master ...', master);
-    if (master._id) {
-      setFormData({
-        ...master
-      });
-    }
-  }, [master]);
-
-
-  // useEffect usado para manejar el registro o actualizacion del producto
-  useEffect(() => {
-    console.log('useEffect 3 ...', isError, isSuccess, message);
+    console.log('useEffect 1 ...', isError, isSuccess, category, message);
     if (isError) {
-      refInputName.current.focus();
-      toast.error(message);
+      Message(message, 'error');
+      dispatch(reset());
     }
-    // Redirect to the same page
+
     if (isSuccess) {
-      dispatch(resetCreate());
-      setFormData(initialState);
-
-
-      dispatch(getMasters({
-        type: 'CATEGORIAS'
-      }));
-
-
-      if (master._id) {
-        toast.success('Categoría Actualizada');
+      closeModal();
+      dispatch(getCategories());
+      if (category._id) {
+        Message('Categoria actualizada exitosamente!');
       } else {
-        toast.success('Categoría Registrada');
+        Message('Categoria creada exitosamente!');
       }
-
-      refInputName.current.focus();
-
     }
   }, [isError, isSuccess, message, navigate, dispatch]);
+
+  // useEffect usado para cargar la data al inicio. (solo se ejecuta la primera vez)
+  useEffect(() => {
+    console.log('useEffect 2 ...');
+    dispatch(getCategories());
+  }, []);
+
+  // useEffect to handle items by page.
+  useEffect(() => {
+    console.log('useEffect categories ...', categories);
+    setCategoriesPage(categories.slice(offset * perPage,
+      (offset + 1) * perPage));
+    setPageCount(Math.ceil(categories.length / perPage));
+  }, [categories]);
 
   // use effect to handle pagination
   useEffect(() => {
     console.log('use effect offset ');
-    setMastersPage(masters.slice(offset * perPage,
+    setCategoriesPage(categories.slice(offset * perPage,
       (offset + 1) * perPage));
   }, [offset]);
 
+  //useEffect to show data on popup.
+  useEffect(() => {
+    console.log('useEffect 3 ...', category);
+    //if (user._id) {
+    setFormData({
+      name: category.name,
+      description: category.description,
+      prefix: category.prefix
+    });
+    //}
+  }, [category]);
 
   const onChange = (e) => {
+
+    console.log('onChange ..:', e);
+    const { name, value } = e.target;
+
+    if (name === 'prefix' && (isNaN(value) || value.includes('.') || value.includes(' '))) {
+      return;
+    }
+
     setFormData((prevState) => ({
       ...prevState,
-      [e.target.name]: e.target.value
+      [name]: name === 'name' ? value.toUpperCase() : value
     }));
   };
 
-  const onChangeCheck = (e) => {
-    console.log('e ..:', e);
-    setFormData({
-      ...formData,
-      enabled: !enabled
-    });
+  const onChangeSearch = (e) => {
+    setCategorySearch(e.target.value);
   };
 
-  const onSave = (e) => {
-    console.log('on submit');
-    if (validate()) {
-      console.log('grabar informacion ..:');
-      if (master._id) {
-        console.log('Actualizar producto ...');
-        dispatch(updateMaster({
-          id: master._id,
-          name,
-          description,
-          enabled
-        }));
-      } else {
-        dispatch(createMaster({
-          type: 'CATEGORIAS',
-          name,
-          description,
-          enabled
-        }));
-      }
-
-    };
-    refInputName.current.focus();
+  const onKeyDownSearch = (e) => {
+    console.log('onKeyDownSearch ..:', e);
+    if (e.key === 'Enter') {
+      console.log('get category ..:');
+      dispatch(getCategories({ name: e.target.value }));
+    }
   };
 
-  const onSearch = (e) => {
-    console.log('on search');
-    console.log('event ..:', e);
+  const onSubmit = (e) => {
+    e.preventDefault();
+
+    if (category._id) {
+      dispatch(updateCategory({
+        id: category._id,
+        description
+      }));
+    } else {
+      dispatch(createCategory({
+        name,
+        description,
+        prefix
+      }));
+    }
+
   };
 
-  const onClean = (e) => {
-    console.log('on clean');
-    console.log('event ..:', e);
+  const onEditar = (idCategory) => {
+    const category = categories.find((category) => category._id == idCategory);
+    if (category) {
+      dispatch(setCategory(category));
+      openModal();
+    }
+  };
+
+  // Open/Close modal
+  const openModal = () => {
+    setModalIsOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
     setFormData(initialState);
-    dispatch(setMaster({}));
-    refInputName.current.focus();
-
+    // validar si se deberia limpiar todo el initialState
+    dispatch(reset());
+    dispatch(resetCategory());
   };
-
-  const onEditar = (e) => {
-    console.log('onEditar  ...', e.target.id);
-    const master = masters.find((master) => master._id == e.target.id);
-    console.log('onEditar master ...', master);
-    dispatch(setMaster(master));
-    refInputName.current.focus();
-  };
-
-
-
-
 
   // manejar el evento de paginacion.
   const handlePageClick = (e) => {
@@ -192,123 +197,167 @@ function Category() {
     return <Spinner />
   }
 
-  const validate = () => {
-    if (!name && name.length < 4) {
-      toast.info('Ingresar nombre completo');
-      return false;
-    }
-    return true;
-  };
-
   return (
-    <div className="container">
-      <section className="heading">
-        <p>
-          Mantenimiento de Categoría
-        </p>
-        <hr></hr>
+    <div className="container-list">
+      <br></br>
+      <section>
+        <h1>
+          <FaUser /> Categorias
+        </h1>
       </section>
-      <div className="maestro">
-        <div className="form-group">
 
-          <table style={{ width: '100%' }}>
+      <section className="form-list">
+
+        <table style={{ width: '100%' }}>
+          <tbody>
             <tr>
               <td>
-                <label htmlFor="name">Nombre ..:</label>
+
+                <div className="form-group3">
+                  <input
+                    type='text'
+                    className='form-control'
+                    id='categorySearch'
+                    name='categorySearch'
+                    value={categorySearch}
+                    onChange={onChangeSearch}
+                    onKeyDown={onKeyDownSearch}
+                    placeholder='Busqueda de categorias...'
+                    //ref={refInputDescBusqueda}
+                    required />
+                </div>
+
               </td>
-              <td>
-                <input
-                  type='text'
-                  className='form-control'
-                  id='name'
-                  name='name'
-                  value={name}
-                  onChange={onChange}
-                  placeholder='Ingresar nombre'
-                  ref={refInputName}
-                  required />
+              <td className="td-v-align-top" >
+
+                <button className='btn' onClick={openModal} ><TbNewSection /> Nuevo </button>
+
               </td>
             </tr>
-            <tr>
-              <td>
-                <label htmlFor="name">Descripción ..:</label>
-              </td>
-              <td colSpan="2">
-                <textarea
-                  type='text'
-                  className='form-control'
-                  id='description'
-                  name='description'
-                  value={description}
-                  onChange={onChange}
-                  placeholder='Ingresar descripción' />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <label htmlFor="name">Activo ..:</label>
-              </td>
-              <td colSpan="2">
-                <input
-                  type='checkbox'
-                  id='enabled'
-                  name='enabled'
-                  onChange={onChangeCheck}
-                  checked={enabled}
-                  placeholder='Requiere estado' />
-              </td>
-            </tr>
-          </table>
-          <div className="form-group2">
-            <button className="btn btn-block" onClick={onSave} >{master._id ? 'Actualizar' : 'Guardar'}</button>
-            {
-              /*
-              <button className="btn btn-block" onClick={onSearch}>Buscar</button>
-              */
-            }
+          </tbody>
+        </table>
 
-            <button className="btn btn-block" onClick={onClean} >Limpiar</button>
-          </div>
+        {categories.length > 0 && <div>
 
-        </div>
-
-        <div>
-          <div className="grilla-maestro-cabecera">
-
+          <div className="listas-headings" key="0">
             <div>Nombre</div>
-            <div>Estado</div>
-            <div><AiTwotoneEdit /> Editar</div>
+            <div>Descripción</div>
+            <div>Prefijo</div>
+            <div>Editar</div>
           </div>
 
-          {mastersPage.map(master => (
-            <div className="grilla-maestro" key={master._id}>
-              <div>{master.name}</div>
-              <div>{master.enabled ? 'Activo' : 'Inactivo'}</div>
-              <button className="btn2" id={master._id} onClick={onEditar} />
+          {categoriesPage.map(category => (
+            <div className="listas" key={category._id}>
+              <div>{category.name}</div>
+              <div>{category.description}</div>
+              <div> {category.prefix}</div>
+              <div>
+
+                <button onClick={() => onEditar(category._id)} style={{ border: 'none', background: 'none' }}>
+                  <AiTwotoneEdit color="black" />
+                </button>
+
+              </div>
 
             </div>
           ))}
+        </div>}
 
-          <div>
-            <ReactPaginate
-              previousLabel={"prev"}
-              nextLabel={"next"}
-              breakLabel={"..."}
-              breakClassName={"break-me"}
-              pageCount={pageCount}
-              marginPagesDisplayed={2}
-              pageRangeDisplayed={5}
-              onPageChange={handlePageClick}
-              containerClassName={"pagination"}
-              subContainerClassName={"pages pagination"}
-              activeClassName={"active"} />
-          </div>
-
+        <div>
+          <ReactPaginate
+            previousLabel={"prev"}
+            nextLabel={"next"}
+            breakLabel={"..."}
+            breakClassName={"break-me"}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={"pagination"}
+            subContainerClassName={"pages pagination"}
+            activeClassName={"active"} />
         </div>
 
 
-      </div>
+        <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStyles} contentLabel='Nueva Categoria'>
+          <h3>{category._id ? 'Actualizar Categoría' : 'Nueva Categoría'}</h3>
+          <hr></hr>
 
+          <button className='btn-close' onClick={closeModal}>
+            X
+          </button>
+          <br></br>
+
+          <section className="form">
+            <form onSubmit={onSubmit}>
+              <div className="form-group">
+                <table style={{ width: '100%' }}>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <label htmlFor="name">Nombre ..:</label>
+                      </td>
+                      <td>
+
+                        <input
+                          type='text'
+                          className='form-control'
+                          id='name'
+                          name='name'
+                          value={name}
+                          onChange={onChange}
+                          placeholder='Ingrese nombre'
+                          required
+                          disabled={!!category._id} />
+
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <label htmlFor="name">Descripción ..:</label>
+                      </td>
+                      <td>
+                        <input
+                          type='text'
+                          className='form-control'
+                          id='description'
+                          name='description'
+                          value={description}
+                          onChange={onChange}
+                          placeholder='Ingrese descripción' />
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <label htmlFor="name">Prefijo ..:</label>
+                      </td>
+                      <td>
+                        <input
+                          className='form-control'
+                          id='prefix'
+                          name='prefix'
+                          value={prefix}
+                          onChange={onChange}
+                          placeholder='Ingrese prefijo'
+                          required
+                          disabled={!!category._id} />
+
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="form-group">
+                <button className="btn btn-block">{category._id ? 'Actualizar' : 'Registrar'}</button>
+              </div>
+            </form>
+          </section>
+
+        </Modal>
+
+      </section>
     </div>
   );
 }

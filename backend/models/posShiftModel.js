@@ -23,6 +23,46 @@ const posShiftSchema = mongoose.Schema({
     type: Number,
     min: [0, 'El monto final debe ser un número positivo.']
   },
+  totalSalesAmount: {
+    type: Number,
+    min: [0, 'El monto final debe ser un número positivo.']
+  },
+  totalSalesCount: {
+    type: Number,
+    default: 0,
+    min: [0, 'El número de ventas debe ser positivo.']
+  },
+  totalChangeAmount: {
+    type: Number,
+    default: 0,
+    min: [0, 'El monto de vueltos debe ser positivo.']
+  },
+  cashAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Total en efectivo'
+  },
+  digitalWalletAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Total en billeteras digitales: Yape, Plin, etc.'
+  },
+  cardAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Total en tarjetas'
+  },
+  transferAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Total en transferencias'
+  },
+  otherPaymentsAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Otros métodos de pago'
+  },
+
   enabled: {
     type: Boolean,
     default: true

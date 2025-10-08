@@ -56,14 +56,14 @@ export const SidebarData = [
         title: 'Nuevo movimiento',
         path: '/inventario/nuevo',
         icon: <IoIcons.IoIosPaper />
-      },
+      }/*,
       {
         title: 'Movimientos',
         path: '/inventario/consulta',
         icon: <IoIcons.IoIosPaper />
-      }
+      }*/
     ]
-  },
+  },/*
   {
     title: 'Compras',
     path: '/compras',
@@ -109,7 +109,7 @@ export const SidebarData = [
         icon: <IoIcons.IoIosPaper />
       }
     ]
-  },
+  },*/
   {
     title: 'Maestros',
     path: '/maestros',
@@ -159,6 +159,20 @@ export const SidebarData = [
       {
         title: 'Nuevo',
         path: '/usuarios/nuevo',
+        icon: <IoIcons.IoIosPaper />
+      }
+    ]
+  },
+  {
+    title: 'Prueba',
+    path: '/test',
+    icon: <FaIcons.FaCartPlus />,
+    iconClosed: <RiIcons.RiArrowDownSFill />,
+    iconOpened: <RiIcons.RiArrowUpSFill />,
+    subNav: [
+      {
+        title: 'Test 01',
+        path: '/test/test01',
         icon: <IoIcons.IoIosPaper />
       }
     ]

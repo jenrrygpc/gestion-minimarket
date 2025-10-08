@@ -63,7 +63,7 @@ function Customer() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { customer, customers, isLoading, isError, isSuccess, message } = useSelector(
+  const { customer, customers, isLoading, isError, isSuccess, isSuccessGet, message } = useSelector(
     (state) => state.customer
   );
 
@@ -72,8 +72,7 @@ function Customer() {
   useEffect(() => {
     console.log('useEffect 1 ...', isError, isSuccess, customer, message);
     if (isError) {
-      //toast.error(message);
-      Message('Cliente actualizado exitosamente!', 'error');
+      Message('Cliente no actualizado exitosamente!', 'error');
       dispatch(reset());
     }
 
@@ -331,7 +330,8 @@ function Customer() {
                           name='names'
                           value={names}
                           onChange={onChange}
-                          placeholder='Ingrese nombres completos' />
+                          placeholder='Ingrese nombres completos'
+                          required />
                       </td>
                     </tr>
 
@@ -348,7 +348,7 @@ function Customer() {
                           value={email}
                           onChange={onChange}
                           placeholder='Ingrese correo'
-                          required />
+                        />
 
                       </td>
                     </tr>
@@ -366,7 +366,7 @@ function Customer() {
                           value={address}
                           onChange={onChange}
                           placeholder='Ingrese dirección'
-                          required />
+                        />
 
                       </td>
                     </tr>
@@ -384,7 +384,7 @@ function Customer() {
                           value={cellphone}
                           onChange={onChange}
                           placeholder='Ingrese celular'
-                          required />
+                        />
 
                       </td>
                     </tr>

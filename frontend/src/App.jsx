@@ -16,6 +16,7 @@ import Ventas from "./pages/Ventas";
 import PosShift from "./pages/PosShift";
 import Inventory from "./pages/Inventory";
 import Customer from "./pages/Customer";
+import Test from "./pages/Test";
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
             <Route path = '/ventas/venta' element = {<Ventas />} />
             <Route path = '/ventas/turno' element = {<PosShift />} />
             <Route path = '/inventario/nuevo' element = {<Inventory />} />
+            <Route path = '/test/test01' element = {<Test />} />
           </Routes>
         </div>
       </Router>

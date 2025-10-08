@@ -7,7 +7,9 @@ const initialState = {
   isError: false,
   isSuccess: false,
   isLoading: false,
-  message: ''
+  message: '',
+  shiftClosingResult: {},
+  preClosingSummary: null,
 };
 
 // Create new pos shift
@@ -90,6 +92,42 @@ export const getValidPosShift = createAsyncThunk(
   }
 );
 
+// Close pos shift
+export const closePosShift = createAsyncThunk(
+  'posShift/close',
+  async (posData, thunkAPI) => {
+    try {
+      const { user } = thunkAPI.getState().auth;
+      const { token } = user;
+      return await posShiftService.closePosShift(posData, token);
+    } catch (error) {
+      console.log('error ..:', error);
+      const message = (error.response && error.response.data
+        && error.response.data.message) || error.message
+        || error.toString();
+
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
+// ✅ Acción para obtener resumen previo al cierre
+export const getPreClosingSummary = createAsyncThunk(
+  'posShift/getPreClosingSummary',
+  async (posShiftId, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token;
+      return await posShiftService.getPreClosingSummary(posShiftId, token);
+    } catch (error) {
+      const message =
+        (error.response && error.response.data && error.response.data.message) ||
+        error.message ||
+        error.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  }
+);
+
 export const posShiftSlice = createSlice({
   name: 'posShift',
   initialState,
@@ -102,6 +140,13 @@ export const posShiftSlice = createSlice({
     },
     resetPosShift: (state) => {
       state.posShift = {};
+      state.posShiftList = [];
+      state.isError = false;
+      state.isSuccess = false;
+      state.isLoading = false;
+      state.message = '';
+      state.shiftClosingResult = null;
+      state.preClosingSummary = null;
     },
     setPosShift: (state, action) => {
       state.posShift = action.payload;
@@ -162,6 +207,36 @@ export const posShiftSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
       })
+      .addCase(closePosShift.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(closePosShift.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.shiftClosingResult = action.payload;
+        state.message = 'closePosShift';
+        state.isError = false;
+      })
+      .addCase(closePosShift.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      .addCase(getPreClosingSummary.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getPreClosingSummary.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.preClosingSummary = action.payload.summary;
+        state.message = 'getPreClosingSummary';
+      })
+      .addCase(getPreClosingSummary.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+        state.preClosingSummary = null;
+      });
   },
 });
 

@@ -1,16 +1,11 @@
 const mongoose = require('mongoose');
 
 const inventorySchema = mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
-  },
-  store: {
+  storeId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Store'
   },
-  product: {
+  productId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'ProductsV2'
   },
@@ -43,6 +38,15 @@ const inventorySchema = mongoose.Schema({
   transactionDate: {
     type: Date,
     default: Date.now
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
   }
 }, {
   timestamps: true

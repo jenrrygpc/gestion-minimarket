@@ -1,23 +1,22 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import customerService from './customerService';
+import categoryService from './categoryService';
 
 const initialState = {
-  customers: [],
-  customer: {},
+  categories: [],
+  category: {},
   isError: false,
   isSuccess: false,
-  isSuccessGet: false,
   isLoading: false,
   message: ''
 };
 
-// Create new customer
-export const createCustomer = createAsyncThunk(
-  'customers/create',
-  async (storeData, thunkAPI) => {
+// Create new category
+export const createCategory = createAsyncThunk(
+  'categories/create',
+  async (categoryData, thunkAPI) => {
     try {
       const { token } = thunkAPI.getState().auth.user;
-      return await customerService.createCustomer(storeData, token);
+      return await categoryService.createCategory(categoryData, token);
     } catch (error) {
       console.log('error ..:', error);
       const message = (error.response && error.response.data
@@ -29,13 +28,13 @@ export const createCustomer = createAsyncThunk(
   }
 );
 
-// Update customer
-export const updateCustomer = createAsyncThunk(
-  'customers/update',
-  async (storeData, thunkAPI) => {
+// Update category
+export const updateCategory = createAsyncThunk(
+  'categories/update',
+  async (categoryData, thunkAPI) => {
     try {
       const { token } = thunkAPI.getState().auth.user;
-      return await customerService.updateCustomer(storeData, token);
+      return await categoryService.updateCategory(categoryData, token);
     } catch (error) {
       console.log('error ..:', error);
       const message = (error.response && error.response.data
@@ -47,13 +46,13 @@ export const updateCustomer = createAsyncThunk(
   }
 );
 
-// Get customers
-export const getCustomers = createAsyncThunk(
-  'customers/get',
+// Get categories
+export const getCategories = createAsyncThunk(
+  'categories/getAll',
   async (params, thunkAPI) => {
     try {
       const { token } = thunkAPI.getState().auth.user;
-      return await customerService.getCustomers(params, token);
+      return await categoryService.getCategories(params, token);
     } catch (error) {
       console.log('error ..:', error);
       const message = (error.response && error.response.data
@@ -65,8 +64,9 @@ export const getCustomers = createAsyncThunk(
   }
 );
 
-export const customerSlice = createSlice({
-  name: 'customer',
+
+export const categorySlice = createSlice({
+  name: 'category',
   initialState,
   reducers: {
     reset: (state) => {
@@ -75,64 +75,56 @@ export const customerSlice = createSlice({
       state.isSuccess = false;
       state.message = '';
     },
-    resetCustomer: (state) => {
-      state.customer = {};
+    resetCategory: (state) => {
+      state.category = {};
     },
-    resetCustomers: (state) => {
-      state.customers = [];
-      state.isSuccess = false;
-      state.isSuccessGet = false;
-    },
-    setCustomer: (state, action) => {
-      state.customer = action.payload;
+    setCategory: (state, action) => {
+      state.category = action.payload;
     }
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createCustomer.pending, (state) => {
+      .addCase(createCategory.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(createCustomer.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isSuccess = true;
-        state.isError = false;
-        console.log('createCustomer fulfilled ..:', action.payload);
-        state.customer = action.payload;
-      })
-      .addCase(createCustomer.rejected, (state, action) => {
-        state.isLoading = false;
-        state.isError = true;
-        state.message = action.payload;
-      })
-      .addCase(updateCustomer.pending, (state) => {
-        state.isLoading = true;
-      })
-      .addCase(updateCustomer.fulfilled, (state) => {
+      .addCase(createCategory.fulfilled, (state) => {
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
       })
-      .addCase(updateCustomer.rejected, (state, action) => {
+      .addCase(createCategory.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
       })
-      .addCase(getCustomers.pending, (state) => {
+      .addCase(updateCategory.pending, (state) => {
         state.isLoading = true;
       })
-      .addCase(getCustomers.fulfilled, (state, action) => {
+      .addCase(updateCategory.fulfilled, (state) => {
         state.isLoading = false;
-        state.isSuccessGet = true;
+        state.isSuccess = true;
         state.isError = false;
-        state.customers = action.payload
       })
-      .addCase(getCustomers.rejected, (state, action) => {
+      .addCase(updateCategory.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
+      })
+      .addCase(getCategories.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getCategories.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.categories = action.payload
+      })
+      .addCase(getCategories.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.categories = [];
       })
   },
 });
 
-export const { reset, setCustomer, resetCustomer, resetCustomers } = customerSlice.actions;
-export default customerSlice.reducer;
+export const { reset, setCategory, resetCategory } = categorySlice.actions;
+export default categorySlice.reducer;
