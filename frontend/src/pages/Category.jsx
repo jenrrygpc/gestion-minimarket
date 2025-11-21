@@ -253,7 +253,8 @@ function Category() {
               <div> {category.prefix}</div>
               <div>
 
-                <button onClick={() => onEditar(category._id)} style={{ border: 'none', background: 'none' }}>
+                <button onClick={() => onEditar(category._id)} 
+                style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
                   <AiTwotoneEdit color="black" />
                 </button>
 

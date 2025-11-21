@@ -53,6 +53,7 @@ const initialState = {
   measure: '',
   price: 0,
   cost: 0,
+  averageCost: 0, // Agregar para mostrar cuando se edita
   stock: 0,
   minimumStock: 0,
   display: '',
@@ -100,7 +101,7 @@ function Product() {
   const [formData, setFormData] = useState(initialState);
 
   const { code, description, measure,
-    display, price, cost, stock,
+    display, price, cost, averageCost, stock,
     category, minimumStock, taxFree,
     discount, requiresParameter
   } = formData;
@@ -197,6 +198,7 @@ function Product() {
         display: product.display,
         price: product.price,
         cost: product.cost,
+        averageCost: product.averageCost || 0, // Agregar averageCost al cargar producto existente
         stock: product.stock,
         category: product.category,
         minimumStock: product.minimumStock,
@@ -284,12 +286,12 @@ function Product() {
         measure,
         description,
         display,
-        category,
-        price,
-        cost,
+        category,        
         taxFree,
         discount,
         requiresParameter,
+        price,
+        cost,
         stock,
         minimumStock,
       }));
@@ -371,7 +373,7 @@ function Product() {
             <div>Descripción</div>
             <div>Medida Venta</div>
             <div>Precio</div>
-            <div>Costo</div>
+            <div>Costo Promedio</div>
             <div>Stock</div>
             <div>Presentación</div>
             <div>Editar</div>
@@ -383,7 +385,7 @@ function Product() {
               <div>{product.description}</div>
               <div> {product.measure}</div>
               <div> {product.price}</div>
-              <div> {product.cost}</div>
+              <div> {product.averageCost}</div>
               <div> {product.stock}</div>
               <div> {product.display}</div>
               <div>
@@ -482,7 +484,7 @@ function Product() {
 
                   <tr>
                     <td>
-                      <label htmlFor="name">costo ..:</label>
+                      <label htmlFor="name">Costo {product._id ? '(solo lectura)' : '..:'}</label>
                     </td>
                     <td>
                       <input
@@ -493,10 +495,32 @@ function Product() {
                         value={cost}
                         onChange={onChange}
                         placeholder='Ingresar costo del producto'
+                        disabled={!!product._id}
                       />
 
                     </td>
                   </tr>
+
+                  {/* Mostrar costo promedio solo cuando se edita */}
+                  {product._id && (
+                    <tr>
+                      <td>
+                        <label htmlFor="averageCost">Costo Promedio (solo lectura) ..:</label>
+                      </td>
+                      <td>
+                        <input
+                          type='text'
+                          className='form-control'
+                          id='averageCost'
+                          name='averageCost'
+                          value={averageCost}
+                          placeholder='Costo promedio calculado'
+                          disabled
+                          style={{ backgroundColor: '#f0f0f0' }}
+                        />
+                      </td>
+                    </tr>
+                  )}
 
 
                   <tr>
@@ -556,7 +580,8 @@ function Product() {
                         id="category"
                         value={category}
                         onChange={onChange}
-                        className='form-control'>
+                        className='form-control'
+                        disabled={!!product._id} >
 
                         {
                           categories.map((category) => {
@@ -573,9 +598,27 @@ function Product() {
                     <td colSpan={2}><hr /></td>
                   </tr>
 
+                  {/* Mensaje informativo solo en modo edición */}
+                  {product._id && (
+                    <tr>
+                      <td colSpan={2}>
+                        <div style={{ 
+                          padding: '10px', 
+                          backgroundColor: '#fff3cd', 
+                          border: '1px solid #ffc107',
+                          borderRadius: '4px',
+                          fontSize: '0.9em',
+                          marginBottom: '10px'
+                        }}>
+                          <strong>Nota:</strong> El stock y costo promedio se actualizan automáticamente mediante movimientos de inventario.
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+
                   <tr>
                     <td>
-                      <label htmlFor="name">Stock ..:</label>
+                      <label htmlFor="name">Stock {product._id ? '(solo lectura)' : '..:'}</label>
                     </td>
                     <td>
                       <input

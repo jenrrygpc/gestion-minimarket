@@ -16,6 +16,7 @@ import Ventas from "./pages/Ventas";
 import PosShift from "./pages/PosShift";
 import Inventory from "./pages/Inventory";
 import Customer from "./pages/Customer";
+import ReasonTransaction from "./pages/MotivoTransaccion";
 import Test from "./pages/Test";
 
 
@@ -38,6 +39,7 @@ function App() {
             <Route path = '/maestros/tienda' element = {<Store />} />
             <Route path = '/maestros/puntoventa' element = {<Pos />} />
             <Route path = '/maestros/cliente' element = {<Customer />} />
+            <Route path = '/maestros/motivo_transaccion' element = {<ReasonTransaction />} />
             <Route path = '/ventas/venta' element = {<Ventas />} />
             <Route path = '/ventas/turno' element = {<PosShift />} />
             <Route path = '/inventario/nuevo' element = {<Inventory />} />

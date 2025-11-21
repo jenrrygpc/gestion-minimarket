@@ -1,10 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { createRT, getRTs } = require('../controllers/reasonTransactionController')
+const { createReasonTransaction,
+    getReasonsTransaction,
+    updateReasonTransaction } = require('../controllers/reasonTransactionController')
 
 const { protect } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createRT)
-    .get(protect, getRTs);
+    .post(protect, createReasonTransaction)
+    .get(protect, getReasonsTransaction);
+
+router.route('/:id')
+    .put(protect, updateReasonTransaction);
 
 module.exports = router;

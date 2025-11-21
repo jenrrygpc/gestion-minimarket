@@ -3,18 +3,22 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
 const ReasonTransaction = require('../models/reasonTransactionModel');
 
-// @desc    Create profile
-// @route   POST /api/profiles
+// @desc    Create reason transaction
+// @route   POST /api/reasons-transaction
 // @access  Private
-const createRT = asyncHandler(async (req, res) => {
+const createReasonTransaction = asyncHandler(async (req, res) => {
     const { payload: {
+        code,
         name,
         description,
+        transactionType,
+        affectsCost,
+        requiresDocument,
         enabled
     } } = req.body;
-    if (!name) {
+    if (!code || !name || !transactionType) {
         res.status(400);
-        throw new Error('Incluir nombre');
+        throw new Error('Incluir código, nombre y tipo de transacción');
     }
 
     // Get user using the id  the JWT
@@ -25,10 +29,14 @@ const createRT = asyncHandler(async (req, res) => {
     }
 
     const reasonTransaction = await ReasonTransaction.create({
+        code,
         name,
         description,
+        transactionType,
+        affectsCost,
+        requiresDocument,
         enabled,
-        user: req.id
+        createdBy: req.id
     });
 
 
@@ -43,10 +51,10 @@ const createRT = asyncHandler(async (req, res) => {
 });
 
 
-// @desc    Get profiles
-// @route   GET /api/profiles
+// @desc    Get reasons transaction
+// @route   GET /api/reasons-transaction
 // @access  Private
-const getRTs = asyncHandler(async (req, res) => {
+const getReasonsTransaction = asyncHandler(async (req, res) => {
     // Get user using the id  the JWT
     console.log('getRTs ..:', req);
     const { name } = req.query;
@@ -70,8 +78,38 @@ const getRTs = asyncHandler(async (req, res) => {
     res.status(200).json(RTs);
 });
 
+const updateReasonTransaction = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { payload: {
+        code,
+        name,
+        description,
+        transactionType,
+        affectsCost,
+        requiresDocument,
+        enabled } } = req.body;
+
+    const reasonTransaction = await ReasonTransaction.findByIdAndUpdate(id, {
+        code,
+        name,
+        description,
+        transactionType,
+        affectsCost,
+        requiresDocument,
+        enabled,
+        updatedBy: req.id
+    }, { new: true });
+
+    if (!reasonTransaction) {
+        res.status(404);
+        throw new Error('ReasonTransaction not found');
+    }
+
+    res.status(200).json(reasonTransaction);
+});
 
 module.exports = {
-    createRT,
-    getRTs
+    createReasonTransaction,
+    getReasonsTransaction,
+    updateReasonTransaction
 };

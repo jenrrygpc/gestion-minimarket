@@ -13,7 +13,7 @@ import { FaMinusCircle, FaPlusCircle, FaRegSave } from "react-icons/fa";
 import { TbNewSection } from "react-icons/tb";
 
 /* feature stores */
-import { getRTs } from "../features/reasons-transaction/reasonTransactionSlice";
+import { getReasonsTransaction } from "../features/reasons-transaction/reasonTransactionSlice";
 //import { getProduct } from "../features/products/productSlice";
 import {
   getProduct,
@@ -70,7 +70,7 @@ function Inventory() {
   // useEffect usado para cargar la data al inicio. (solo se ejecuta la primera vez)
   useEffect(() => {
     console.log('useEffect 2 ...');
-    dispatch(getRTs());
+    dispatch(getReasonsTransaction());
   }, []);
 
   useEffect(() => {

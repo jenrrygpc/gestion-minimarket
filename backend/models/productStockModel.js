@@ -13,11 +13,27 @@ const productStockSchema = mongoose.Schema({
   },
   stock: {
     type: Number,
-    default: 0
+    default: 0,
+    min: [0, 'El stock debe ser un número positivo.']
   },
   minimumStock: {
     type: Number,
-    default: 0
+    default: 0,
+    min: [0, 'El stock mínimo debe ser un número positivo.']
+  },
+  price: {
+    type: Number,
+    min: [0, 'El precio debe ser un número positivo.']
+  },
+  averageCost: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  lastCost: {
+    type: Number,
+    default: 0,
+    min: 0
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

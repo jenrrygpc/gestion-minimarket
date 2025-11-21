@@ -1,11 +1,13 @@
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 
 const User = require('../models/userModel');
 const Product = require('../models/productModelV2.js');
 const Counter = require('../models/counterModel.js');
 const Category = require('../models/categoryModel.js');
 const ProductStock = require('../models/productStockModel.js');
-const Inventory = require('../models/inventoryModel.js')
+const Inventory = require('../models/inventoryModel.js');
+const ReasonTransaction = require('../models/reasonTransactionModel.js');
 
 
 // @desc    Create product
@@ -15,9 +17,9 @@ const createProduct = asyncHandler(async (req, res) => {
 
     const { payload: { code, measure,
         description, display, category,
-        price, cost, taxFree, discount,
-        requiresParameter,
-        stock, minimumStock, store } } = req.body;
+        taxFree, discount, requiresParameter,
+        price, cost, stock, minimumStock,
+        store } } = req.body;
 
     if (!description || !price || !measure || !display || !category) {
         res.status(400);
@@ -29,63 +31,98 @@ const createProduct = asyncHandler(async (req, res) => {
         finalCode = await getNextProductCode(category);
     }
 
+    // Iniciar sesión para transacción atómica
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
+    try {
+        // Crear producto maestro con basePrice/baseCost
+        const product = await Product.create([{
+            measure,
+            code: finalCode,
+            description,
+            display,
+            category,
+            basePrice: price,
+            baseCost: cost || 0,
+            taxFree,
+            discount,
+            requiresParameter,
+            createdBy: req.id,
+        }], { session });
 
-    const product = await Product.create({
-        measure,
-        code: finalCode,
-        description,
-        display,
-        category,
-        price,
-        cost,
-        taxFree,
-        discount,
-        requiresParameter,
-        createdBy: req.id,
-    });
+        console.log('product ..:', product[0]);
 
-    console.log('product ..:', product);
-
-    if (!product) {
-        res.status(400);
-        throw new Error('Error al crear el producto');
-    }
-
-    if (stock && stock > 0) {
-        // Create initial stock record
-        const productStock = await ProductStock.create({
-            productId: product._id,
-            storeId: store,
-            stock,
-            minimumStock: minimumStock || 0,
-            createdBy: req.id
-        });
-
-        console.log('productStock ..:', productStock);
-
-        if (!productStock) {
-            res.status(400);
-            throw new Error('Error al crear el stock del producto');
+        if (!product || !product[0]) {
+            throw new Error('Error al crear el producto');
         }
 
-        // Registrar movimiento de inventario inicial
-        await Inventory.create({
-            storeId: store,
-            productId: product._id,
-            transactionType: 'ENTRADA',
-            reasonTransaction: 'Inventario Inicial',
-            quantity: stock,
-            price: price,
-            cost: cost || 0,
-            document: 'APERTURA',
-            transactionDate: new Date(),
-            createdBy: req.id
-        });
+        const createdProduct = product[0];
 
+        // Crear stock si se proporciona stock inicial
+        if (stock && stock > 0) {
+            // Crear registro de stock con precio de tienda y costos
+            const productStock = await ProductStock.create([{
+                productId: createdProduct._id,
+                storeId: store,
+                stock,
+                minimumStock: minimumStock || 0,
+                price, // Precio específico de la tienda
+                averageCost: cost || 0, // Costo inicial es el costo de entrada
+                lastCost: cost || 0, 
+                createdBy: req.id
+            }], { session });
+
+            console.log('productStock ..:', productStock[0]);
+
+            if (!productStock || !productStock[0]) {
+                throw new Error('Error al crear el stock del producto');
+            }
+
+            // Buscar el motivo de transacción para inventario inicial
+            const reasonInitial = await ReasonTransaction.findOne({
+                code: 'INITIAL',
+                transactionType: { $in: ['ENTRADA', 'AMBOS'] },
+                enabled: true
+            });
+
+            if (!reasonInitial) {
+                throw new Error('No se encontró el motivo de transacción para inventario inicial (código: INITIAL)');
+            }
+
+            // Registrar movimiento de inventario inicial con previousStock/newStock
+            await Inventory.create([{
+                storeId: store,
+                productId: createdProduct._id,
+                transactionType: 'ENTRADA',
+                reasonTransactionId: reasonInitial._id, // Usar ObjectId en lugar de string
+                quantity: stock,
+                price: price,
+                cost: cost || 0,
+                previousStock: 0, // Stock anterior es 0 en inventario inicial
+                newStock: stock, // Nuevo stock es la cantidad ingresada
+                document: 'APERTURA',
+                notes: 'Inventario inicial del producto',
+                transactionDate: new Date(),
+                createdBy: req.id
+            }], { session });
+        }
+
+        // Confirmar transacción
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(201).json(createdProduct);
+
+    } catch (error) {
+        // Revertir transacción en caso de error
+        await session.abortTransaction();
+        session.endSession();
+        
+        console.error('Error en createProduct:', error);
+        res.status(400);
+        throw error;
     }
-
-    res.status(201).json(product);
 });
 
 // @desc    Update product
@@ -106,26 +143,38 @@ const updateProduct = asyncHandler(async (req, res) => {
         throw new Error('Product not found');
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(req.params.id,
-        {
-            measure,
-            code,
-            description,
-            display,
-            category,
-            price,
-            cost,
-            taxFree,
-            discount,
-            requiresParameter,
-            updatedBy: req.id,
-        },
-        { new: true });
+    // IMPORTANTE: No permitir actualizar cost ni stock directamente
+    // Estos valores solo se actualizan mediante movimientos de inventario
+    if (typeof cost !== 'undefined' || typeof stock !== 'undefined') {
+        console.warn('Intento de actualizar cost o stock ignorado. Use movimientos de inventario.');
+    }
+
+    // Actualizar producto maestro (solo campos permitidos)
+    const updateData = {
+        updatedBy: req.id,
+    };
+
+    // Solo actualizar campos que fueron enviados
+    if (measure) updateData.measure = measure;
+    if (code) updateData.code = code;
+    if (description) updateData.description = description;
+    if (display) updateData.display = display;
+    if (category) updateData.category = category;
+    if (typeof price !== 'undefined') updateData.basePrice = price; // Actualizar precio base
+    if (typeof taxFree !== 'undefined') updateData.taxFree = taxFree;
+    if (typeof discount !== 'undefined') updateData.discount = discount;
+    if (typeof requiresParameter !== 'undefined') updateData.requiresParameter = requiresParameter;
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+        req.params.id,
+        updateData,
+        { new: true }
+    );
 
     console.log('updatedProduct ..:', updatedProduct);
 
-    // Si se envió minimumStock y store, actualizar en ProductStock
-    if (typeof minimumStock !== 'undefined' && store) {
+    // Actualizar ProductStock si se proporcionan price o minimumStock
+    if (store && (typeof price !== 'undefined' || typeof minimumStock !== 'undefined')) {
 
         const existingStock = await ProductStock.findOne({
             productId: product._id,
@@ -133,14 +182,24 @@ const updateProduct = asyncHandler(async (req, res) => {
         });
 
         if (existingStock) {
+            const stockUpdateData = {
+                updatedBy: req.id
+            };
+
+            // Solo actualizar price y minimumStock
+            // NUNCA actualizar: stock, averageCost, lastCost (se gestionan por inventario)
+            if (typeof price !== 'undefined') stockUpdateData.price = price;
+            if (typeof minimumStock !== 'undefined') stockUpdateData.minimumStock = minimumStock;
+
             await ProductStock.findOneAndUpdate(
                 { productId: product._id, storeId: store },
-                { minimumStock: minimumStock },
+                stockUpdateData,
                 { new: true }
             );
-            console.log(`Stock mínimo actualizado para producto ${product._id} en tienda ${store}`);
+            console.log(`Stock actualizado para producto ${product._id} en tienda ${store}`);
         } else {
             console.log(`No existe registro de stock para producto ${product._id} en tienda ${store}`);
+            // Opcionalmente, podrías crear el stock aquí si no existe
         }
     }
 
@@ -171,17 +230,33 @@ const getProduct = asyncHandler(async (req, res) => {
                 _id: product._id,
                 code: product.code,
                 description: product.description,
+                measure: product.measure,
                 display: product.display,
                 category: product.category,
-                price: product.price,
-                cost: product.cost,
+
+
+                //price: product.price,
+                // --- Lógica de Precios y Costos ---
+                // Prioridad 1: Precio de la tienda. Prioridad 2: Precio base del producto.
+                price: productStock?.price ?? product.basePrice ?? 0,
+                //cost: product.cost,
+
+                // Costos específicos de la tienda
+                averageCost: productStock?.averageCost ?? 0,
+                lastCost: productStock?.lastCost ?? 0,
+
+                // Costo de referencia del producto maestro
+                baseCost: product.baseCost ?? 0,
+
+
                 taxFree: product.taxFree,
                 discount: product.discount,
                 requiresParameter: product.requiresParameter,
-                measure: product.measure,
+
+
                 enabled: product.enabled,
-                stock: productStock ? productStock.stock || 0 : 0,
-                minimumStock: productStock ? productStock.minimumStock || 0 : 0
+                stock: productStock?.stock ?? 0,
+                minimumStock: productStock?.minimumStock ?? 0
             };
         }
     } else {
@@ -239,15 +314,23 @@ const getProduct = asyncHandler(async (req, res) => {
                 description: product.description,
                 display: product.display,
                 category: product.category,
-                price: product.price,
-                cost: product.cost,
+                //price: product.price,
+                //cost: product.cost,
                 taxFree: product.taxFree,
                 discount: product.discount,
                 requiresParameter: product.requiresParameter,
                 measure: product.measure,
                 enabled: product.enabled,
-                stock: productStock ? productStock.stock || 0 : 0,
-                minimumStock: productStock ? productStock.minimumStock || 0 : 0
+                //stock: productStock ? productStock.stock || 0 : 0,
+                //minimumStock: productStock ? productStock.minimumStock || 0 : 0
+
+                // --- Lógica de Precios y Costos ---
+                price: productStock?.price ?? product.basePrice ?? 0,
+                averageCost: productStock?.averageCost ?? 0,
+                lastCost: productStock?.lastCost ?? 0,
+                baseCost: product.baseCost ?? 0,
+                stock: productStock?.stock ?? 0,
+                minimumStock: productStock?.minimumStock ?? 0
             };
         }));
     }

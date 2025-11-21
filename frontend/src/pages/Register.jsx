@@ -179,10 +179,8 @@ function Register() {
     }
   };
 
-  const onEditar = (e) => {
-    console.log('onEditar  ...', e.target.id);
-    const user = users.find((user) => user._id == e.target.id);
-    console.log('onEditar user ...', user);
+  const onEditar = (idUser) => {
+    const user = users.find((user) => user._id == idUser);
     if (user) {
       dispatch(setUser(user));
       openModal();
@@ -266,7 +264,15 @@ function Register() {
               <div>{user.name}</div>
               <div>{user.email}</div>
               <div> {user.profile}</div>
-              <div><AiTwotoneEdit onClick={onEditar} id={user._id} /> </div>
+              <div>
+                
+                
+                <button onClick={() => onEditar(user._id)} 
+                style={{ border: 'none', background: 'none', cursor: 'pointer' }}>
+                  <AiTwotoneEdit color="black" />
+                </button>
+
+                </div>
 
             </div>
           ))}

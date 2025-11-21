@@ -146,6 +146,11 @@ export const SidebarData = [
         title: 'Cliente',
         path: '/maestros/cliente',
         icon: <IoIcons.IoIosPaper />
+      },
+      {
+        title: 'Motivo de transacción',
+        path: '/maestros/motivo_transaccion',
+        icon: <IoIcons.IoIosPaper />
       }
     ]
   },

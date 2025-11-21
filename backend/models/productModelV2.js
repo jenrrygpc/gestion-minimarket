@@ -23,22 +23,22 @@ const productSchema = mongoose.Schema({
     type: String,
     required: [true, 'Please enter a category']
   },
-  price: {
+  basePrice: {
     type: Number,
     //required: [true, 'Please enter a price']
   },
-  cost: {
+  baseCost: {
     type: Number
   },
-  taxFree: {
+  taxFree: { // not implemented yet
     type: Boolean,
     default: false
   },
-  discount: {
+  discount: { // not implemented yet
     type: Number,
     default: 0
   },
-  requiresParameter: {
+  requiresParameter: { // not implemented yet
     type: Boolean,
     default: false
   },
