@@ -12,9 +12,13 @@ const registerInventory = async (inventoryData, { token, store }) => {
     }
   };
 
+  // CAMBIO: Renombrar reasonTransaction a reasonTransactionId para coincidir con el backend
+  const { reasonTransactionId, ...restData } = inventoryData;
+
   const response = await axios.post(API_URL, {
     payload: {
-      ...inventoryData,
+      ...restData,
+      reasonTransactionId, // Enviar el ID del motivo
       store: store.id
     }
   }, config);

@@ -12,6 +12,7 @@ export const SidebarData = [
     icon: <AiIcons.AiFillHome />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
+    roles: ['ADMIN', 'GERENTE', 'CAJERO'],
 
     subNav: [
       {
@@ -22,7 +23,8 @@ export const SidebarData = [
       {
         title: 'Venta por código',
         path: '/ventas/venta',
-        icon: <FcIcons.FcSalesPerformance />
+        icon: <FcIcons.FcSalesPerformance />,
+        roles: ['ADMIN', 'GERENTE', 'CAJERO'],
       }
     ]
   },
@@ -32,16 +34,19 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
+    roles: ['ADMIN', 'GERENTE'],
     subNav: [
       {
         title: 'Registrar producto venta',
         path: '/productos/venta',
-        icon: <IoIcons.IoIosPaper />
+        icon: <IoIcons.IoIosPaper />,
+        roles: ['ADMIN', 'GERENTE'],
       },
       {
         title: 'Registrar',
         path: '/productos/registro',
-        icon: <IoIcons.IoIosPaper />
+        icon: <IoIcons.IoIosPaper />,
+        roles: ['ADMIN', 'GERENTE'],
       }
     ]
   },
@@ -51,11 +56,13 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
+    roles: ['ADMIN', 'GERENTE', 'ALMACENERO'],
     subNav: [
       {
         title: 'Nuevo movimiento',
         path: '/inventario/nuevo',
-        icon: <IoIcons.IoIosPaper />
+        icon: <IoIcons.IoIosPaper />,
+        roles: ['ADMIN', 'GERENTE', 'ALMACENERO'],
       }/*,
       {
         title: 'Movimientos',
@@ -116,6 +123,7 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
+    roles: ['ADMIN', 'GERENTE'],
     subNav: [
       {
         title: 'Categoria',
@@ -160,6 +168,7 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
+    roles: ['ADMIN', 'GERENTE'],
     subNav: [
       {
         title: 'Nuevo',
@@ -174,6 +183,7 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
+    roles: ['ADMIN', 'GERENTE'],
     subNav: [
       {
         title: 'Test 01',

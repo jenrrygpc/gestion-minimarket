@@ -35,7 +35,7 @@ const initialState = {
   email: '',
   password: '',
   confirmPassword: '',
-  profileName: ''
+  role: ''
 }
 
 function Register() {
@@ -54,18 +54,17 @@ function Register() {
   //state para abrir o cerrar el modal.
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
+  /*
   const { profiles } = useSelector(
     (state) => state.profile
   );
-
-  initialState.profileName = (profiles[0] || {}).name
+  */
+  //initialState.profileName = (profiles[0] || {}).name
   console.log('initialState ..:', initialState);
 
   const [formData, setFormData] = useState(initialState);
 
-  const { name, email, password, confirmPassword, profile } = formData;
-
-  console.log('profile ..:', profile);
+  const { name, email, password, confirmPassword, role } = formData;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -76,7 +75,7 @@ function Register() {
     (state) => state.user
   );
 
-  console.log('profiles ..:', profiles);
+  //console.log('profiles ..:', profiles);
   console.log('users ..:', users);
 
   useEffect(() => {
@@ -128,7 +127,7 @@ function Register() {
     setFormData({
       name: user.name,
       email: user.email,
-      profile: user.profile
+      role: user.role
     });
     //}
   }, [user]);
@@ -154,7 +153,7 @@ function Register() {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log('profile ..:', profile)
+    //console.log('profile ..:', profile)
 
     if (password !== confirmPassword) {
       Message('Las claves no coinciden', 'error');
@@ -165,14 +164,14 @@ function Register() {
           id: user._id,
           name,
           password,
-          profile
+          role
         }));
       } else {
         dispatch(register({
           name,
           email,
           password,
-          profile
+          role
         }));
       }
 
@@ -255,7 +254,7 @@ function Register() {
           <div className="listas-headings" key="0">
             <div>Nombre</div>
             <div>Correo</div>
-            <div>Perfil</div>
+            <div>Role</div>
             <div>Editar</div>
           </div>
 
@@ -263,7 +262,7 @@ function Register() {
             <div className="listas" key={user._id}>
               <div>{user.name}</div>
               <div>{user.email}</div>
-              <div> {user.profile}</div>
+              <div> {user.role}</div>
               <div>
                 
                 
@@ -382,21 +381,22 @@ function Register() {
 
                     <tr>
                       <td>
-                        <label htmlFor="name">Perfil ..:</label>
+                        <label htmlFor="name">Role ..:</label>
                       </td>
                       <td>
 
                         <select
-                          name="profile"
-                          id="profile"
-                          value={profile}
+                          name="role"
+                          id="role"
+                          value={role}
                           onChange={onChange}
                           className='form-control'>
-                          {
-                            profiles.map((profile) => {
-                              return <option key={profile._id} id={profile._id} value={profile.name}>{profile.name}</option>
-                            })
-                          }
+                          
+                          <option value="CAJERO">CAJERO</option>                          
+                          <option value="ALMACENERO">ALMACENERO</option>
+                          <option value="GERENTE">GERENTE</option>
+                          <option value="ADMIN">ADMIN</option>                          
+
                         </select>
 
                       </td>

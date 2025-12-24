@@ -47,7 +47,8 @@ function Inventory() {
   const { reasons } = useSelector(
     (state) => state.reasonTransaction
   );
-  initialState.reasonTransaction = (reasons[0] || {}).name;
+  // CAMBIO: Guardar el ID del motivo en lugar del nombre para enviar al backend
+  initialState.reasonTransaction = (reasons[0] || {})._id;
 
   console.log('reasons ...', reasons);
 
@@ -96,9 +97,9 @@ function Inventory() {
           code: product.code,
           description: product.description,
           quantity: 1,
-          cost: product.cost || product.price,
-          price: product.price,
-          originalPrice: product.price,
+          cost: product.lastCost || product.baseCost,
+          price: product.price || product.basePrice,
+          originalPrice: product.price || product.basePrice,
         }]
       }));
     }
@@ -174,6 +175,20 @@ function Inventory() {
   const onChange = (e) => {
     const { name, value } = e.target;
     console.log('onChange ...:', name, value);
+
+    if (name === 'transactionType' && value !== transactionType) {
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: value,
+        productsInventory: []
+      }));
+      //Message('El cambio de tipo de movimiento reinicia la lista de productos.', 'info');
+      if (productsInventory.length > 0) {
+        Message('El cambio de tipo de movimiento reinicia la lista de productos.', 'info');
+      }
+      return;
+    }
+
     if (name === 'code') {
       if (isNaN(value) || value.includes('.') || value.includes(' ')) {
         return;
@@ -186,7 +201,7 @@ function Inventory() {
     }
     setFormData((prevState) => ({
       ...prevState,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
   };
 
@@ -276,27 +291,61 @@ function Inventory() {
     console.log('referenceDocument ...', referenceDocument);
     console.log('productsInventory ...', productsInventory);
 
+    // VALIDACIÓN 1: Verificar que haya productos
     if (productsInventory.length === 0) {
       Message('No hay productos para registrar!', 'info');
       refInputDescBusqueda.current.focus();
       return
     }
 
-    if (productsInventory.find((product) => product.cost > product.price)) {
-      Message('El costo no puede ser mayor al precio!', 'error');
-      return
+    // VALIDACIÓN 2: Verificar que todos los productos tengan cantidad > 0
+    const invalidQuantity = productsInventory.find((product) => !product.quantity || product.quantity <= 0);
+    if (invalidQuantity) {
+      Message(`El producto ${invalidQuantity.description} debe tener cantidad mayor a 0!`, 'error');
+      return;
     }
 
+    // VALIDACIÓN 3: Verificar que todos los precios sean > 0
+    const invalidPrice = productsInventory.find((product) => !product.price || product.price <= 0);
+    if (invalidPrice) {
+      Message(`El producto ${invalidPrice.description} debe tener precio mayor a 0!`, 'error');
+      return;
+    }
+
+    // VALIDACIÓN 4: Verificar que todos los costos sean >= 0
+    const invalidCost = productsInventory.find((product) => product.cost < 0 || isNaN(product.cost));
+    if (invalidCost) {
+      Message(`El producto ${invalidCost.description} tiene un costo inválido!`, 'error');
+      return;
+    }
+
+    // VALIDACIÓN 5: Verificar que el costo no sea mayor al precio
+    const costHigherThanPrice = productsInventory.find((product) => product.cost > product.price);
+    if (costHigherThanPrice) {
+      Message(`El costo del producto ${costHigherThanPrice.description} no puede ser mayor al precio!`, 'error');
+      return;
+    }
+
+    // VALIDACIÓN 6: Verificar que se haya seleccionado un motivo de transacción
+    if (!reasonTransaction) {
+      Message('Debe seleccionar un motivo de transacción!', 'error');
+      return;
+    }
+
+    // Reinicia el estado antes de guardar para forzar el cambio de isError/isSuccess
+  dispatch(reset());
+
+    // CAMBIO: Enviar reasonTransactionId (ID) en lugar del nombre del motivo
     dispatch(registerInventory({
       transactionType,
-      reasonTransaction,
+      reasonTransactionId: reasonTransaction, // Ahora es el _id
       document: referenceDocument,
       products: productsInventory.map((product) => {
         return {
           productId: product.id,
-          quantity: product.quantity,
-          price: product.price,
-          cost: product.cost,
+          quantity: Number(product.quantity),
+          price: Number(product.price),
+          cost: Number(product.cost) || 0,
           originalPrice: product.originalPrice
         }
       })
@@ -534,14 +583,20 @@ function Inventory() {
                     id="reasonTransaction"
                     value={reasonTransaction}
                     onChange={onChange}
-                    className='form-control'>
-
+                    className='form-control'
+                    required
+                  >
+                    {/* CAMBIO: Filtrar motivos según el tipo de transacción y guardar el _id */}
                     {
-                      reasons.map((reason) => {
-                        return <option key={reason._id} id={reason._id} value={reason.name}>{reason.name}</option>
-                      })
+                      reasons
+                        .filter(reason =>
+                          (reason.transactionType === transactionType || reason.transactionType === 'AMBOS') &&
+                          reason.code !== 'SALE' // cambio para no mostrar el motivo SALE
+                        )
+                        .map((reason) => (
+                          <option key={reason._id} value={reason._id}>{reason.name}</option>
+                        ))
                     }
-
                   </select>
 
                 </td>
@@ -672,7 +727,9 @@ function Inventory() {
                     value={product.cost}
                     onChange={(event) => onChangeQuantity(event, product)}
                     onBlur={(event) => handleEventBlur(event, product)}
-                    required />
+                    required
+                    disabled={transactionType === 'SALIDA'} // Solo editable en ENTRADA                    
+                  />
                 </div>
                 <div className='list-group'>
                   S/.
@@ -684,7 +741,9 @@ function Inventory() {
                     value={product.price}
                     onChange={(event) => onChangeQuantity(event, product)}
                     onBlur={(event) => handleEventBlur(event, product)}
-                    required />
+                    required
+                    disabled={transactionType === 'SALIDA'} // Solo editable en ENTRADA
+                  />
                 </div>
                 <div>S/. {product.quantity * product.cost}</div>
                 <div>

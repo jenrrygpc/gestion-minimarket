@@ -111,6 +111,34 @@ function Header() {
 
   const changeSidebar = () => dispatch(showSidebar());
 
+  // FILTRAR MENÚ SEGÚN ROL DEL USUARIO
+  const filteredSidebarData = SidebarData.filter(item => {
+    // Si no tiene campo roles, se muestra para todos
+    if (!item.roles || item.roles.length === 0) {
+      return true;
+    }
+    // Si tiene roles, verificar que el rol del usuario esté incluido
+    return user && item.roles.includes(user.role);
+  }).map(item => {
+    // Filtrar también los subNav si tienen roles
+    if (item.subNav && item.subNav.length > 0) {
+      const filteredSubNav = item.subNav.filter(subItem => {
+        // Si el subNav no tiene campo roles, se muestra
+        if (!subItem.roles || subItem.roles.length === 0) {
+          return true;
+        }
+        // Si tiene roles, verificar que el rol del usuario esté incluido
+        return user && subItem.roles.includes(user.role);
+      });
+      
+      return {
+        ...item,
+        subNav: filteredSubNav
+      };
+    }
+    return item;
+  });
+
   return (
 
     <IconContext.Provider value={{ color: '#fff' }}>
@@ -175,7 +203,7 @@ function Header() {
           <NavIcon to='#'>
             <AiOutlineClose onClick={changeSidebar} />
           </NavIcon>
-          {SidebarData.map((item, index) => {
+          {filteredSidebarData.map((item, index) => {
             return <SubMenu item={item} key={index} />;
           })}
         </SidebarWrap>

@@ -11,7 +11,7 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
-    profile
+    role
   } } = req.body;
 
   if (!name || !email || !password) {
@@ -37,7 +37,7 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password: hashedPassword,
-    profile
+    role
   });
   console.log('userCreate');
 
@@ -46,6 +46,7 @@ const registerUser = asyncHandler(async (req, res) => {
       id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       token: generateToken(user._id)
     })
   } else {
@@ -59,7 +60,7 @@ const updateUser = asyncHandler(async (req, res) => {
   const { payload: {
     name,
     password,
-    profile
+    role
   } } = req.body;
 
   //Hash password
@@ -76,7 +77,7 @@ const updateUser = asyncHandler(async (req, res) => {
     {
       name,
       password: hashedPassword,
-      profile
+      role
     },
     { new: true });
 
@@ -105,6 +106,7 @@ const loginUser = asyncHandler(async (req, res) => {
       id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
       token: generateToken(user._id)
     });
   } else {

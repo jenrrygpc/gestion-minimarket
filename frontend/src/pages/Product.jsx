@@ -197,7 +197,7 @@ function Product() {
         measure: product.measure,
         display: product.display,
         price: product.price,
-        cost: product.cost,
+        cost:  product.lastCost || product.baseCost || 0,
         averageCost: product.averageCost || 0, // Agregar averageCost al cargar producto existente
         stock: product.stock,
         category: product.category,
@@ -371,9 +371,9 @@ function Product() {
           <div className="listas-headings-dynamics" key="0">
             <div>Código</div>
             <div>Descripción</div>
-            <div>Medida Venta</div>
+            <div>Medida Venta</div>            
+            <div>Costo</div>
             <div>Precio</div>
-            <div>Costo Promedio</div>
             <div>Stock</div>
             <div>Presentación</div>
             <div>Editar</div>
@@ -384,8 +384,8 @@ function Product() {
               <div>{product.code}</div>
               <div>{product.description}</div>
               <div> {product.measure}</div>
-              <div> {product.price}</div>
-              <div> {product.averageCost}</div>
+              <div> {product.lastCost || product.baseCost }</div>
+              <div> {product.price}</div>              
               <div> {product.stock}</div>
               <div> {product.display}</div>
               <div>
@@ -442,7 +442,8 @@ function Product() {
                         name='code'
                         value={code}
                         onChange={onChange}
-                        placeholder='Ingrese código de producto' />
+                        placeholder='Ingrese código de producto'
+                        disabled={!!product._id} />
 
                     </td>
                   </tr>
@@ -464,23 +465,7 @@ function Product() {
                     </td>
                   </tr>
 
-                  <tr>
-                    <td>
-                      <label htmlFor="name">Precio ..:</label>
-                    </td>
-                    <td>
-                      <input
-                        type='text'
-                        className='form-control'
-                        id='price'
-                        name='price'
-                        value={price}
-                        onChange={onChange}
-                        placeholder='Ingresar precio del producto'
-                        required />
-
-                    </td>
-                  </tr>
+                  
 
                   <tr>
                     <td>
@@ -521,6 +506,24 @@ function Product() {
                       </td>
                     </tr>
                   )}
+
+                  <tr>
+                    <td>
+                      <label htmlFor="name">Precio ..:</label>
+                    </td>
+                    <td>
+                      <input
+                        type='text'
+                        className='form-control'
+                        id='price'
+                        name='price'
+                        value={price}
+                        onChange={onChange}
+                        placeholder='Ingresar precio del producto'
+                        required />
+
+                    </td>
+                  </tr>
 
 
                   <tr>

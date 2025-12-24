@@ -1,8 +1,10 @@
 const asyncHandler = require('express-async-handler');
+const mongoose = require('mongoose');
 
 const User = require('../models/userModel');
 const Sale = require('../models/saleModel');
 const Inventory = require('../models/inventoryModel');
+const ReasonTransaction = require('../models/reasonTransactionModel');
 //const Product = require('../models/productModelV2');
 const ProductStock = require('../models/productStockModel');
 const Counter = require('../models/counterModel');
@@ -77,42 +79,81 @@ const createSale = asyncHandler(async (req, res) => {
         throw new Error('Error al crear la venta.');
     }
 
-    for (const item of products) {
-        // 1. Registrar movimiento de inventario (SALIDA/VENTA)
-        await Inventory.create({
-            productId: item.productId,
-            transactionType: 'SALIDA',
-            reasonTransaction: 'Venta',
-            quantity: item.quantity,
-            price: item.price,
-            document: sale.documentNumber,
-            user: req.id,
-            storeId: store,
-            transactionDate: new Date(),
-            createdBy: req.id
-        });
-
-        // 2. Actualizar el stock del producto
-        await ProductStock.findOneAndUpdate(
-            {
-                productId: item.productId,
-                storeId: store
-
-            },
-            {
-                $inc: { stock: -item.quantity },
-                updatedBy: req.id
-            }
-        );
+    // CAMBIO: Obtener el motivo de transacción para VENTA desde la BD
+    const saleReason = await ReasonTransaction.findOne({ code: 'SALE' });
+    if (!saleReason) {
+        res.status(400);
+        throw new Error('No se encontró el motivo de transacción SALE. Debe ejecutar el seeder de motivos.');
     }
 
-    await Sale.findByIdAndUpdate(sale._id, {
-        status: 'COMPLETED',
-        updatedBy: req.id
-    }, { new: true }
-    )
+    // CAMBIO: Usar sesiones de MongoDB para garantizar atomicidad
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    res.status(201).json(sale);
+    try {
+        for (const item of products) {
+            // 1. Obtener el stock actual del producto
+            const productStock = await ProductStock.findOne({
+                productId: item.productId,
+                storeId: store
+            }).session(session);
+
+            if (!productStock) {
+                throw new Error(`No se encontró stock para el producto ${item.productId}`);
+            }
+
+            const previousStock = productStock.stock;
+            const newStock = previousStock - item.quantity;
+
+            // VALIDACIÓN: Verificar que haya stock suficiente
+            if (newStock < 0) {
+                throw new Error(`Stock insuficiente para el producto ${item.code}. Stock actual: ${previousStock}, solicitado: ${item.quantity}`);
+            }
+
+            // 2. Registrar movimiento de inventario (SALIDA/VENTA)
+            // CAMBIO: Agregar previousStock, newStock y reasonTransactionId
+            await Inventory.create([{
+                productId: item.productId,
+                transactionType: 'SALIDA',
+                reasonTransactionId: saleReason._id, // CAMBIO: Usar ObjectId del motivo
+                quantity: item.quantity,
+                price: item.price,
+                cost: productStock.averageCost || 0, // CAMBIO: Usar costo promedio actual
+                previousStock, // CAMBIO: Stock antes de la venta
+                newStock, // CAMBIO: Stock después de la venta
+                document: sale.documentNumber,
+                saleId: sale._id, // CAMBIO: Referenciar la venta
+                storeId: store,
+                transactionDate: new Date(),
+                createdBy: req.id
+            }], { session });
+
+            // 3. Actualizar el stock del producto
+            productStock.stock = newStock;
+            productStock.updatedBy = req.id;
+            await productStock.save({ session });
+        }
+
+        // 4. Actualizar el estado de la venta a COMPLETED
+        await Sale.findByIdAndUpdate(sale._id, {
+            status: 'COMPLETED',
+            updatedBy: req.id
+        }, { new: true, session });
+
+        // CONFIRMAR LA TRANSACCIÓN
+        await session.commitTransaction();
+        session.endSession();
+
+        res.status(201).json(sale);
+
+    } catch (error) {
+        // REVERTIR LA TRANSACCIÓN EN CASO DE ERROR
+        await session.abortTransaction();
+        session.endSession();
+        console.error('Error al procesar la venta:', error.message);
+        res.status(400);
+        throw error;
+    }
 });
 
 

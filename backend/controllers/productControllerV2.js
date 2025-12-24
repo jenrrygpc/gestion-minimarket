@@ -308,6 +308,8 @@ const getProduct = asyncHandler(async (req, res) => {
                 storeId: store
             });
 
+            console.log('productStock ..:', productStock);
+
             return {
                 _id: product._id,
                 code: product.code,
