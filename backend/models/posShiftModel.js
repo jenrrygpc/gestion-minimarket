@@ -12,7 +12,8 @@ const posShiftSchema = mongoose.Schema({
     //default: Date.now
   },
   shiftEnd: {
-    type: Date
+    type: Date,
+    required: [false, 'Ingresar fecha de fin de turno.']
   },
   initialAmount: {
     type: Number,
@@ -62,6 +63,70 @@ const posShiftSchema = mongoose.Schema({
     default: 0,
     comment: 'Otros métodos de pago'
   },
+  
+  // ========== ARQUEO DE CAJA ==========
+  // Montos REALES contados físicamente por el cajero
+  realCashAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Efectivo real contado al cierre'
+  },
+  realCardAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Vouchers de tarjetas reales al cierre'
+  },
+  realDigitalWalletAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Billeteras digitales reales al cierre (Yape, Plin, etc.)'
+  },
+  realTransferAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Transferencias reales al cierre'
+  },
+  realOtherAmount: {
+    type: Number,
+    default: 0,
+    comment: 'Otros pagos reales al cierre'
+  },
+  // Diferencias calculadas (real - esperado)
+  cashDifference: {
+    type: Number,
+    default: 0,
+    comment: 'Diferencia en efectivo (positivo = sobrante, negativo = faltante)'
+  },
+  cardDifference: {
+    type: Number,
+    default: 0,
+    comment: 'Diferencia en tarjetas'
+  },
+  digitalWalletDifference: {
+    type: Number,
+    default: 0,
+    comment: 'Diferencia en billeteras digitales'
+  },
+  transferDifference: {
+    type: Number,
+    default: 0,
+    comment: 'Diferencia en transferencias'
+  },
+  totalDifference: {
+    type: Number,
+    default: 0,
+    comment: 'Diferencia total en caja'
+  },
+  arqueoNotes: {
+    type: String,
+    trim: true,
+    comment: 'Observaciones del arqueo de caja'
+  },
+  closedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    comment: 'Usuario que cerró la caja'
+  },
 
   enabled: {
     type: Boolean,
@@ -81,11 +146,7 @@ const posShiftSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'User'
-  },
-  updaterUser: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  },
+  }
 }, {
   timestamps: true
 });

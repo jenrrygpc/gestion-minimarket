@@ -52,32 +52,7 @@ const createSale = asyncHandler(async (req, res) => {
     const documentNumber = `${serie}-${correlativo.toString().padStart(6, '0')}`;
 
 
-    // Crea la venta
-    const sale = await Sale.create({
-        documentType,
-        documentNumber,
-        serie,
-        correlativo,
-        posShiftId,
-        customerId,
-        customer,
-        products,
-        subtotalAmount,
-        totalAmount,
-        taxAmount,
-        changeAmount,
-        payments,
-        status: 'REGISTERED', // Estado inicial
-        storeId: store,
-        createdBy: req.id,
-        //updatedBy: req.id
-    });
-    console.log('sale ..:', sale);
 
-    if (!sale) {
-        res.status(400);
-        throw new Error('Error al crear la venta.');
-    }
 
     // CAMBIO: Obtener el motivo de transacción para VENTA desde la BD
     const saleReason = await ReasonTransaction.findOne({ code: 'SALE' });
@@ -91,8 +66,35 @@ const createSale = asyncHandler(async (req, res) => {
     session.startTransaction();
 
     try {
+
+        // 1. Crear la venta DENTRO de la sesión, con estado 'COMPLETED'
+        const sale = await Sale.create([{
+            documentType,
+            documentNumber,
+            serie,
+            correlativo,
+            posShiftId,
+            customerId,
+            customer,
+            products,
+            subtotalAmount,
+            totalAmount,
+            taxAmount,
+            changeAmount,
+            payments,
+            status: 'COMPLETED',
+            storeId: store,
+            createdBy: req.id,
+        }], { session });
+        console.log('sale ..:', sale);
+
+        if (!sale) {
+            res.status(400);
+            throw new Error('Error al crear la venta.');
+        }
+
         for (const item of products) {
-            // 1. Obtener el stock actual del producto
+            // Obtener el stock actual del producto
             const productStock = await ProductStock.findOne({
                 productId: item.productId,
                 storeId: store
@@ -106,11 +108,16 @@ const createSale = asyncHandler(async (req, res) => {
             const newStock = previousStock - item.quantity;
 
             // VALIDACIÓN: Verificar que haya stock suficiente
+            // De desactiva esta validación para permitir cualquier venta.
+            //if (newStock < 0) {
+            //    throw new Error(`Stock insuficiente para el producto ${item.code}. Stock actual: ${previousStock}, solicitado: ${item.quantity}`);
+            //}
             if (newStock < 0) {
-                throw new Error(`Stock insuficiente para el producto ${item.code}. Stock actual: ${previousStock}, solicitado: ${item.quantity}`);
+                console.warn(`Advertencia: Stock negativo para el producto ${item.productId}. Stock actual: ${previousStock}, solicitado: ${item.quantity}`);
+                newStock = 0; // Evitar que el stock quede negativo
             }
 
-            // 2. Registrar movimiento de inventario (SALIDA/VENTA)
+            // Registrar movimiento de inventario (SALIDA/VENTA)
             // CAMBIO: Agregar previousStock, newStock y reasonTransactionId
             await Inventory.create([{
                 productId: item.productId,
@@ -128,17 +135,13 @@ const createSale = asyncHandler(async (req, res) => {
                 createdBy: req.id
             }], { session });
 
-            // 3. Actualizar el stock del producto
+            // Actualizar el stock del producto
             productStock.stock = newStock;
             productStock.updatedBy = req.id;
             await productStock.save({ session });
         }
 
-        // 4. Actualizar el estado de la venta a COMPLETED
-        await Sale.findByIdAndUpdate(sale._id, {
-            status: 'COMPLETED',
-            updatedBy: req.id
-        }, { new: true, session });
+      
 
         // CONFIRMAR LA TRANSACCIÓN
         await session.commitTransaction();

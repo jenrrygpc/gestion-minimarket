@@ -225,6 +225,19 @@ function Ventas() {
   // Al inicio del componente Ventas
   const [modalCierreIsOpen, setModalCierreIsOpen] = useState(false);
   const [resumenCierre, setResumenCierre] = useState(null);
+  
+  // ========== ARQUEO DE CAJA ==========
+  // Paso 1: Cajero ingresa montos reales (sin ver el sistema)
+  // Paso 2: Se muestra comparación con diferencias
+  const [pasoArqueo, setPasoArqueo] = useState(1); // 1 = ingreso, 2 = confirmación
+  const [arqueoData, setArqueoData] = useState({
+    realCashAmount: '',
+    realCardAmount: '',
+    realDigitalWalletAmount: '',
+    realTransferAmount: '',
+    realOtherAmount: '',
+    arqueoNotes: ''
+  });
 
   //state para establecer el texto de busqueda.
   const [productSearch, setProductSearch] = useState("");
@@ -429,22 +442,64 @@ function Ventas() {
       return;
     }
 
-    dispatch(getPreClosingSummary(
-      posShift._id
-    ));
+    // Resetear estado del arqueo
+    setPasoArqueo(1);
+    setArqueoData({
+      realCashAmount: '',
+      realCardAmount: '',
+      realDigitalWalletAmount: '',
+      realTransferAmount: '',
+      realOtherAmount: '',
+      arqueoNotes: ''
+    });
+    setResumenCierre(null);
+    setModalCierreIsOpen(true);
+  }
 
-    /*
-    dispatch(closePosShift({
-      posShiftId: posShift._id
+  // Manejar cambios en los campos del arqueo
+  const onChangeArqueo = (e) => {
+    const { name, value } = e.target;
+    // Solo permitir números y punto decimal para montos
+    if (name !== 'arqueoNotes' && value !== '' && isNaN(value)) {
+      return;
+    }
+    setArqueoData(prev => ({
+      ...prev,
+      [name]: value
     }));
-    */
+  };
 
+  // Paso 1 -> Paso 2: Obtener resumen del sistema para comparar
+  const continuarAlResumen = () => {
+    // Validar que al menos se haya ingresado el efectivo
+    if (arqueoData.realCashAmount === '' || isNaN(arqueoData.realCashAmount)) {
+      Message("Debe ingresar el monto de efectivo contado.", "error");
+      return;
+    }
+    
+    // Obtener el resumen del sistema
+    dispatch(getPreClosingSummary(posShift._id));
   }
 
   const cancelarCierre = () => {
     setModalCierreIsOpen(false);
     setResumenCierre(null);
+    setPasoArqueo(1);
+    setArqueoData({
+      realCashAmount: '',
+      realCardAmount: '',
+      realDigitalWalletAmount: '',
+      realTransferAmount: '',
+      realOtherAmount: '',
+      arqueoNotes: ''
+    });
     Message("Cierre de caja cancelado.", "info");
+  }
+
+  // Volver al paso 1 para corregir montos
+  const volverAlArqueo = () => {
+    setPasoArqueo(1);
+    setResumenCierre(null);
   }
 
   const confirmarCierre = () => {
@@ -452,21 +507,29 @@ function Ventas() {
       Message("No hay turno abierto para cerrar.", "error");
       return;
     }
-    setModalCierreIsOpen(false);
-    setResumenCierre(null);
-
+    
+    // Enviar datos del arqueo junto con el cierre
     dispatch(closePosShift({
-      posShiftId: posShift._id
+      posShiftId: posShift._id,
+      realCashAmount: Number(arqueoData.realCashAmount) || 0,
+      realCardAmount: Number(arqueoData.realCardAmount) || 0,
+      realDigitalWalletAmount: Number(arqueoData.realDigitalWalletAmount) || 0,
+      realTransferAmount: Number(arqueoData.realTransferAmount) || 0,
+      realOtherAmount: Number(arqueoData.realOtherAmount) || 0,
+      arqueoNotes: arqueoData.arqueoNotes
     }));
 
+    setModalCierreIsOpen(false);
+    setResumenCierre(null);
+    setPasoArqueo(1);
   }
 
   // Agregar useEffect para manejar el resultado del cierre
   useEffect(() => {
 
     if (isSuccessPS && messagePS === 'getPreClosingSummary' && preClosingSummary) {
-      setResumenCierre(preClosingSummary.summary || preClosingSummary); // Ajusta según tu backend
-      setModalCierreIsOpen(true);
+      setResumenCierre(preClosingSummary.summary || preClosingSummary);
+      setPasoArqueo(2); // Pasar al paso 2 (confirmación con diferencias)
     }
 
     // Si el cierre fue exitoso, mostrar mensaje y limpiar estados
@@ -878,6 +941,9 @@ function Ventas() {
       Message("El monto pagado es menor al total de la venta!", "error");
       return;
     }
+
+    dispatch(reset());
+
     const venta = {
       documentType,
       date: new Date().toISOString(),
@@ -1736,77 +1802,344 @@ function Ventas() {
         isOpen={modalCierreIsOpen}
         onRequestClose={() => setModalCierreIsOpen(false)}
         style={customStyles}
-        contentLabel="Resumen Previo al Cierre"
+        contentLabel="Arqueo y Cierre de Caja"
       >
+        {/* ========== PASO 1: ARQUEO - Cajero ingresa montos reales ========== */}
+        {pasoArqueo === 1 && (
+          <>
+            <div style={{
+              backgroundColor: "#d4edda",
+              padding: "10px",
+              borderRadius: "5px",
+              marginBottom: "15px",
+              border: "1px solid #c3e6cb",
+              textAlign: "center"
+            }}>
+              <strong>💰 PASO 1: Cuente el dinero e ingrese los montos</strong>
+            </div>
+            
+            <p style={{ fontSize: "14px", color: "#666", marginBottom: "15px", textAlign: "center" }}>
+              Cuente todo el dinero físicamente y luego ingrese los montos. <br/>
+              <b>No cierre esta ventana hasta terminar de contar.</b>
+            </p>
+            
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <tbody>
+                <tr>
+                  <td style={{ padding: "8px", fontWeight: "bold" }}>💵 Efectivo en caja:</td>
+                  <td style={{ padding: "8px" }}>
+                    <input
+                      type="text"
+                      name="realCashAmount"
+                      value={arqueoData.realCashAmount}
+                      onChange={onChangeArqueo}
+                      placeholder="0.00"
+                      className="form-control"
+                      style={{ textAlign: "right", fontWeight: "bold", fontSize: "16px" }}
+                      autoFocus
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "8px" }}>💳 Vouchers de tarjeta:</td>
+                  <td style={{ padding: "8px" }}>
+                    <input
+                      type="text"
+                      name="realCardAmount"
+                      value={arqueoData.realCardAmount}
+                      onChange={onChangeArqueo}
+                      placeholder="0.00"
+                      className="form-control"
+                      style={{ textAlign: "right" }}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "8px" }}>📱 Yape / Plin / Billeteras:</td>
+                  <td style={{ padding: "8px" }}>
+                    <input
+                      type="text"
+                      name="realDigitalWalletAmount"
+                      value={arqueoData.realDigitalWalletAmount}
+                      onChange={onChangeArqueo}
+                      placeholder="0.00"
+                      className="form-control"
+                      style={{ textAlign: "right" }}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "8px" }}>🏦 Transferencias:</td>
+                  <td style={{ padding: "8px" }}>
+                    <input
+                      type="text"
+                      name="realTransferAmount"
+                      value={arqueoData.realTransferAmount}
+                      onChange={onChangeArqueo}
+                      placeholder="0.00"
+                      className="form-control"
+                      style={{ textAlign: "right" }}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "8px" }}>📋 Otros:</td>
+                  <td style={{ padding: "8px" }}>
+                    <input
+                      type="text"
+                      name="realOtherAmount"
+                      value={arqueoData.realOtherAmount}
+                      onChange={onChangeArqueo}
+                      placeholder="0.00"
+                      className="form-control"
+                      style={{ textAlign: "right" }}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td style={{ padding: "8px", verticalAlign: "top" }}>📝 Observaciones:</td>
+                  <td style={{ padding: "8px" }}>
+                    <textarea
+                      name="arqueoNotes"
+                      value={arqueoData.arqueoNotes}
+                      onChange={onChangeArqueo}
+                      placeholder="Notas adicionales (opcional)"
+                      className="form-control"
+                      rows={2}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-
-        {/* Alerta visual */}
-        <div style={{
-          backgroundColor: "#fff3cd",
-          padding: "10px",
-          borderRadius: "5px",
-          marginBottom: "15px",
-          border: "1px solid #ffeaa7",
-          textAlign: "center"
-        }}>
-          <strong>📊 Revise el resumen antes de confirmar el cierre</strong>
-        </div>
-        <hr />
-
-        {resumenCierre ? (
-          <div>
-            <p><b>Total ventas:</b> {resumenCierre.totalSales}</p>
-            <p><b>Monto inicial:</b> S/. {Number(resumenCierre.initialAmount).toFixed(2)}</p>
-            <p><b>Monto total ventas:</b> S/. {Number(resumenCierre.totalAmount).toFixed(2)}</p>
-            <p><b>Monto final:</b> S/. {Number(resumenCierre.finalAmount).toFixed(2)}</p>
-            <p><b>Monto vuelto Efectivo:</b> S/. {Number(resumenCierre.totalChangeAmount).toFixed(2)}</p>
-            <hr />
-            <h4>Por método de pago:</h4>
-            <ul>
-              <li>Efectivo: S/. {Number(resumenCierre.paymentMethods?.cash || 0).toFixed(2)}</li>
-              <li>Tarjeta: S/. {Number(resumenCierre.paymentMethods?.card || 0).toFixed(2)}</li>
-              <li>Transferencia: S/. {Number(resumenCierre.paymentMethods?.transfer || 0).toFixed(2)}</li>
-              <li>Billetera digital: S/. {Number(resumenCierre.paymentMethods?.digitalWallet || 0).toFixed(2)}</li>
-              <li>Otros: S/. {Number(resumenCierre.paymentMethods?.others || 0).toFixed(2)}</li>
-            </ul>
-          </div>
-        ) : (
-          <p>No hay datos de cierre.</p>
+            <div style={{
+              display: "flex",
+              gap: "10px",
+              marginTop: "20px",
+              justifyContent: "center"
+            }}>
+              <button
+                className="btn"
+                onClick={cancelarCierre}
+                style={{ flex: 1, backgroundColor: "#6c757d", color: "white" }}
+              >
+                ❌ Cancelar
+              </button>
+              <button
+                className="btn"
+                onClick={continuarAlResumen}
+                style={{ flex: 1, backgroundColor: "#007bff", color: "white" }}
+              >
+                ➡️ Continuar
+              </button>
+            </div>
+          </>
         )}
 
-        {/* ✅ Contenedor flex para los botones */}
-        <div style={{
-          display: "flex",
-          gap: "10px",
-          marginTop: "20px",
-          justifyContent: "center" // Opcional: centrar los botones
-        }}>
-          <button
-            className="btn"
-            onClick={cancelarCierre}
-            style={{
-              flex: 1,
-              backgroundColor: "#6c757d",
-              color: "white"
-            }} // Opcional: que ocupen el mismo ancho
-          >
-            ❌ Cancelar
-          </button>
-          <button
-            className="btn btn-danger"
-            onClick={confirmarCierre}
-            style={{
-              flex: 1,
-              backgroundColor: "#dc3545",
-              color: "white"
-            }}
-            disabled={!resumenCierre}
-          >
-            ✅ Confirmar Cierre
-          </button>
-        </div>
+        {/* ========== PASO 2: CONFIRMACIÓN - Mostrar diferencias ========== */}
+        {pasoArqueo === 2 && resumenCierre && (
+          <>
+            <div style={{
+              backgroundColor: "#fff3cd",
+              padding: "10px",
+              borderRadius: "5px",
+              marginBottom: "15px",
+              border: "1px solid #ffeaa7",
+              textAlign: "center"
+            }}>
+              <strong>📊 PASO 2: Revise las diferencias antes de confirmar</strong>
+            </div>
 
+            {/* Resumen de ventas */}
+            <div style={{ marginBottom: "15px" }}>
+              <p><b>Total ventas:</b> {resumenCierre.totalSales}</p>
+              <p><b>Monto inicial:</b> S/. {Number(resumenCierre.initialAmount).toFixed(2)}</p>
+              <p><b>Monto total ventas:</b> S/. {Number(resumenCierre.totalAmount).toFixed(2)}</p>
+              <p><b>Vueltos entregados:</b> S/. {Number(resumenCierre.totalChangeAmount).toFixed(2)}</p>
+            </div>
+            
+            <hr />
+            
+            {/* Tabla de comparación */}
+            <h4 style={{ marginBottom: "10px" }}>Comparación por método de pago:</h4>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "14px" }}>
+              <thead>
+                <tr style={{ backgroundColor: "#f0f0f0" }}>
+                  <th style={{ padding: "8px", textAlign: "left" }}>Método</th>
+                  <th style={{ padding: "8px", textAlign: "right" }}>Esperado</th>
+                  <th style={{ padding: "8px", textAlign: "right" }}>Contado</th>
+                  <th style={{ padding: "8px", textAlign: "right" }}>Diferencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* Efectivo */}
+                {(() => {
+                  const esperado = Number(resumenCierre.expectedCash || resumenCierre.initialAmount + (resumenCierre.paymentMethods?.cash || 0) - (resumenCierre.totalChangeAmount || 0));
+                  const contado = Number(arqueoData.realCashAmount) || 0;
+                  const diff = contado - esperado;
+                  return (
+                    <tr>
+                      <td style={{ padding: "8px" }}>💵 Efectivo</td>
+                      <td style={{ padding: "8px", textAlign: "right" }}>S/. {esperado.toFixed(2)}</td>
+                      <td style={{ padding: "8px", textAlign: "right" }}>S/. {contado.toFixed(2)}</td>
+                      <td style={{ 
+                        padding: "8px", 
+                        textAlign: "right", 
+                        fontWeight: "bold",
+                        color: diff < 0 ? "#dc3545" : diff > 0 ? "#28a745" : "#000"
+                      }}>
+                        {diff >= 0 ? "+" : ""}{diff.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })()}
+                
+                {/* Tarjeta */}
+                {(() => {
+                  const esperado = Number(resumenCierre.paymentMethods?.card || 0);
+                  const contado = Number(arqueoData.realCardAmount) || 0;
+                  const diff = contado - esperado;
+                  return (
+                    <tr>
+                      <td style={{ padding: "8px" }}>💳 Tarjeta</td>
+                      <td style={{ padding: "8px", textAlign: "right" }}>S/. {esperado.toFixed(2)}</td>
+                      <td style={{ padding: "8px", textAlign: "right" }}>S/. {contado.toFixed(2)}</td>
+                      <td style={{ 
+                        padding: "8px", 
+                        textAlign: "right", 
+                        fontWeight: "bold",
+                        color: diff < 0 ? "#dc3545" : diff > 0 ? "#28a745" : "#000"
+                      }}>
+                        {diff >= 0 ? "+" : ""}{diff.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })()}
+                
+                {/* Billeteras digitales */}
+                {(() => {
+                  const esperado = Number(resumenCierre.paymentMethods?.digitalWallet || 0);
+                  const contado = Number(arqueoData.realDigitalWalletAmount) || 0;
+                  const diff = contado - esperado;
+                  return (
+                    <tr>
+                      <td style={{ padding: "8px" }}>📱 Billeteras</td>
+                      <td style={{ padding: "8px", textAlign: "right" }}>S/. {esperado.toFixed(2)}</td>
+                      <td style={{ padding: "8px", textAlign: "right" }}>S/. {contado.toFixed(2)}</td>
+                      <td style={{ 
+                        padding: "8px", 
+                        textAlign: "right", 
+                        fontWeight: "bold",
+                        color: diff < 0 ? "#dc3545" : diff > 0 ? "#28a745" : "#000"
+                      }}>
+                        {diff >= 0 ? "+" : ""}{diff.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })()}
+                
+                {/* Transferencias */}
+                {(() => {
+                  const esperado = Number(resumenCierre.paymentMethods?.transfer || 0);
+                  const contado = Number(arqueoData.realTransferAmount) || 0;
+                  const diff = contado - esperado;
+                  return (
+                    <tr>
+                      <td style={{ padding: "8px" }}>🏦 Transferencia</td>
+                      <td style={{ padding: "8px", textAlign: "right" }}>S/. {esperado.toFixed(2)}</td>
+                      <td style={{ padding: "8px", textAlign: "right" }}>S/. {contado.toFixed(2)}</td>
+                      <td style={{ 
+                        padding: "8px", 
+                        textAlign: "right", 
+                        fontWeight: "bold",
+                        color: diff < 0 ? "#dc3545" : diff > 0 ? "#28a745" : "#000"
+                      }}>
+                        {diff >= 0 ? "+" : ""}{diff.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })()}
+                
+                {/* TOTAL */}
+                {(() => {
+                  const esperadoEfectivo = Number(resumenCierre.expectedCash || resumenCierre.initialAmount + (resumenCierre.paymentMethods?.cash || 0) - (resumenCierre.totalChangeAmount || 0));
+                  const esperadoTotal = esperadoEfectivo + 
+                    Number(resumenCierre.paymentMethods?.card || 0) +
+                    Number(resumenCierre.paymentMethods?.digitalWallet || 0) +
+                    Number(resumenCierre.paymentMethods?.transfer || 0) +
+                    Number(resumenCierre.paymentMethods?.others || 0);
+                  const contadoTotal = 
+                    (Number(arqueoData.realCashAmount) || 0) +
+                    (Number(arqueoData.realCardAmount) || 0) +
+                    (Number(arqueoData.realDigitalWalletAmount) || 0) +
+                    (Number(arqueoData.realTransferAmount) || 0) +
+                    (Number(arqueoData.realOtherAmount) || 0);
+                  const diffTotal = contadoTotal - esperadoTotal;
+                  return (
+                    <tr style={{ backgroundColor: "#f8f9fa", fontWeight: "bold" }}>
+                      <td style={{ padding: "10px" }}>📊 TOTAL</td>
+                      <td style={{ padding: "10px", textAlign: "right" }}>S/. {esperadoTotal.toFixed(2)}</td>
+                      <td style={{ padding: "10px", textAlign: "right" }}>S/. {contadoTotal.toFixed(2)}</td>
+                      <td style={{ 
+                        padding: "10px", 
+                        textAlign: "right", 
+                        fontSize: "16px",
+                        color: diffTotal < 0 ? "#dc3545" : diffTotal > 0 ? "#28a745" : "#000"
+                      }}>
+                        {diffTotal >= 0 ? "+" : ""}S/. {diffTotal.toFixed(2)}
+                        {diffTotal < 0 && " ⚠️"}
+                        {diffTotal > 0 && " ✅"}
+                      </td>
+                    </tr>
+                  );
+                })()}
+              </tbody>
+            </table>
 
+            {/* Observaciones */}
+            {arqueoData.arqueoNotes && (
+              <div style={{ marginTop: "15px", padding: "10px", backgroundColor: "#f0f0f0", borderRadius: "5px" }}>
+                <b>📝 Observaciones:</b> {arqueoData.arqueoNotes}
+              </div>
+            )}
+
+            <div style={{
+              display: "flex",
+              gap: "10px",
+              marginTop: "20px",
+              justifyContent: "center"
+            }}>
+              <button
+                className="btn"
+                onClick={volverAlArqueo}
+                style={{ flex: 1, backgroundColor: "#6c757d", color: "white" }}
+              >
+                ⬅️ Corregir montos
+              </button>
+              <button
+                className="btn"
+                onClick={cancelarCierre}
+                style={{ flex: 1, backgroundColor: "#ffc107", color: "#000" }}
+              >
+                ❌ Cancelar
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={confirmarCierre}
+                style={{ flex: 1, backgroundColor: "#dc3545", color: "white" }}
+              >
+                ✅ Confirmar Cierre
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Loading state */}
+        {pasoArqueo === 2 && !resumenCierre && (
+          <div style={{ textAlign: "center", padding: "40px" }}>
+            <p>Cargando resumen...</p>
+          </div>
+        )}
       </Modal>
 
       {ventaImprimir &&

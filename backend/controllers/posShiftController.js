@@ -207,8 +207,20 @@ const getValidPosShift = asyncHandler(async (req, res) => {
 });
 
 const closePosShift = asyncHandler(async (req, res) => {
-    const { payload: { posShiftId } } = req.body;
+    const { payload: { 
+        posShiftId,
+        // Montos reales del arqueo (ingresados por el cajero)
+        realCashAmount = 0,
+        realCardAmount = 0,
+        realDigitalWalletAmount = 0,
+        realTransferAmount = 0,
+        realOtherAmount = 0,
+        arqueoNotes = ''
+    } } = req.body;
+    
     console.log('closePosShift ..:', posShiftId);
+    console.log('Arqueo recibido:', { realCashAmount, realCardAmount, realDigitalWalletAmount, realTransferAmount, realOtherAmount });
+    
     const userId = req.id;
     const posShift = await PosShift.findById(posShiftId);
     if (!posShift) {
@@ -299,6 +311,34 @@ const closePosShift = asyncHandler(async (req, res) => {
     posShift.digitalWalletAmount = digitalWalletAmount;
     posShift.otherPaymentsAmount = otherPaymentsAmount;
 
+    // ========== ARQUEO DE CAJA ==========
+    // Calcular el efectivo esperado (monto inicial + ventas en efectivo - vueltos)
+    const expectedCashAmount = posShift.initialAmount + cashAmount - totalChangeAmount;
+    
+    // Guardar montos reales ingresados por el cajero
+    posShift.realCashAmount = Number(realCashAmount) || 0;
+    posShift.realCardAmount = Number(realCardAmount) || 0;
+    posShift.realDigitalWalletAmount = Number(realDigitalWalletAmount) || 0;
+    posShift.realTransferAmount = Number(realTransferAmount) || 0;
+    posShift.realOtherAmount = Number(realOtherAmount) || 0;
+    
+    // Calcular diferencias (positivo = sobrante, negativo = faltante)
+    posShift.cashDifference = posShift.realCashAmount - expectedCashAmount;
+    posShift.cardDifference = posShift.realCardAmount - cardAmount;
+    posShift.digitalWalletDifference = posShift.realDigitalWalletAmount - digitalWalletAmount;
+    posShift.transferDifference = posShift.realTransferAmount - transferAmount;
+    
+    // Diferencia total
+    const totalRealAmount = posShift.realCashAmount + posShift.realCardAmount + 
+                           posShift.realDigitalWalletAmount + posShift.realTransferAmount + 
+                           posShift.realOtherAmount;
+    const totalExpectedAmount = expectedCashAmount + cardAmount + digitalWalletAmount + 
+                                transferAmount + otherPaymentsAmount;
+    posShift.totalDifference = totalRealAmount - totalExpectedAmount;
+    
+    // Guardar observaciones del arqueo
+    posShift.arqueoNotes = arqueoNotes;
+
     await posShift.save();
 
     res.json({
@@ -316,6 +356,14 @@ const closePosShift = asyncHandler(async (req, res) => {
                 transfer: transferAmount,
                 digitalWallet: digitalWalletAmount,
                 others: otherPaymentsAmount
+            },
+            // Datos del arqueo
+            arqueo: {
+                expectedCash: expectedCashAmount,
+                realCash: posShift.realCashAmount,
+                cashDifference: posShift.cashDifference,
+                totalDifference: posShift.totalDifference,
+                notes: arqueoNotes
             }
         }
     });
