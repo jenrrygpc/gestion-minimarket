@@ -48,6 +48,7 @@ const SidebarNav = styled.nav`
   left: ${({ sidebar }) => (sidebar ? '0' : '-100%')};
   transition: 350ms;
   z-index: 10;
+  overflow-y: auto; /* Scroll vertical cuando el contenido sea muy alto */
 `;
 
 const SidebarWrap = styled.div`
@@ -108,8 +109,15 @@ function Header() {
   }, [user, isError, message]);
 
   //const [sidebar, setSidebar] = useState(false);
+  // Estado para controlar qué menú está abierto (solo uno a la vez)
+  const [openMenuIndex, setOpenMenuIndex] = useState(null);
 
   const changeSidebar = () => dispatch(showSidebar());
+
+  // Función para cambiar el menú abierto
+  const handleMenuToggle = (index) => {
+    setOpenMenuIndex(openMenuIndex === index ? null : index);
+  };
 
   // FILTRAR MENÚ SEGÚN ROL DEL USUARIO
   const filteredSidebarData = SidebarData.filter(item => {
@@ -204,7 +212,14 @@ function Header() {
             <AiOutlineClose onClick={changeSidebar} />
           </NavIcon>
           {filteredSidebarData.map((item, index) => {
-            return <SubMenu item={item} key={index} />;
+            return (
+              <SubMenu 
+                item={item} 
+                key={index} 
+                isOpen={openMenuIndex === index}
+                onToggle={() => handleMenuToggle(index)}
+              />
+            );
           })}
         </SidebarWrap>
       </SidebarNav>
