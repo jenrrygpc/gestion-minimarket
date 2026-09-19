@@ -4,11 +4,11 @@ const {
     createSale,
     updateSale } = require('../controllers/saleController')
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createSale);
+    .post(protect, authorize('VENTAS_CREAR'), createSale);
 
 router.route('/:id')
-    .put(protect, updateSale);
+    .put(protect, authorize('VENTAS_EDITAR'), updateSale);
 
 module.exports = router;

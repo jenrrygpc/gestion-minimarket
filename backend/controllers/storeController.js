@@ -54,14 +54,13 @@ const getStores = asyncHandler(async (req, res) => {
         res.status(401);
         throw new Error('User not found');
     }
-    let stores;
+
+    // Admins see every store; other users only see the stores assigned to them
+    const filter = user.isAdmin ? {} : { _id: { $in: user.stores } };
     if (name) {
-        stores = await Store.find({
-            name: new RegExp(name, 'i')
-        });
-    } else {
-        stores = await Store.find();
+        filter.name = new RegExp(name, 'i');
     }
+    const stores = await Store.find(filter);
 
     console.log('stores ..:', stores);
     res.status(200).json(stores);

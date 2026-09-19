@@ -5,12 +5,12 @@ const {
     getMasters,
     updateMaster } = require('../controllers/masterController')
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createMaster)
-    .get(protect, getMasters);
+    .post(protect, authorize('MAESTROS_CREAR'), createMaster)
+    .get(protect, authorize('MAESTROS_VER'), getMasters);
 
 router.route('/:id')
-    .put(protect, updateMaster);
+    .put(protect, authorize('MAESTROS_EDITAR'), updateMaster);
 
 module.exports = router;

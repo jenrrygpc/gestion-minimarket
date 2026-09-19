@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { createInventory } = require('../controllers/inventoryController');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
-  .post(protect, createInventory);
+  .post(protect, authorize('INVENTARIO_CREAR'), createInventory);
 
 module.exports = router;

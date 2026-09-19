@@ -4,12 +4,12 @@ const { createReasonTransaction,
     getReasonsTransaction,
     updateReasonTransaction } = require('../controllers/reasonTransactionController')
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createReasonTransaction)
-    .get(protect, getReasonsTransaction);
+    .post(protect, authorize('MOTIVOS_TRANSACCION_CREAR'), createReasonTransaction)
+    .get(protect, authorize('MOTIVOS_TRANSACCION_VER'), getReasonsTransaction);
 
 router.route('/:id')
-    .put(protect, updateReasonTransaction);
+    .put(protect, authorize('MOTIVOS_TRANSACCION_EDITAR'), updateReasonTransaction);
 
 module.exports = router;

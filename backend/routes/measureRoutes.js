@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { createMeasure, getMeasures } = require('../controllers/measureController')
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createMeasure)
-    .get(protect, getMeasures);
+    .post(protect, authorize('MEDIDAS_CREAR'), createMeasure)
+    .get(protect, authorize('MEDIDAS_VER'), getMeasures);
 
 module.exports = router;

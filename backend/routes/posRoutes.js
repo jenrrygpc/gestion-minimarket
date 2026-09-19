@@ -7,15 +7,15 @@ const {
     getAvailablePos
 } = require('../controllers/posController')
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createPos)
-    .get(protect, getPos);
+    .post(protect, authorize('POS_CREAR'), createPos)
+    .get(protect, authorize('POS_VER'), getPos);
 
 router.route('/available')
-    .get(protect, getAvailablePos);
+    .get(protect, authorize('POS_VER'), getAvailablePos);
 
 router.route('/:id')
-    .put(protect, updatePos);
+    .put(protect, authorize('POS_EDITAR'), updatePos);
 
 module.exports = router;

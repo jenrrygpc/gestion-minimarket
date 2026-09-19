@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
-//const User = require('../models/userModel');
+const User = require('../models/userModel');
 
 const protect = asyncHandler(async (req, res, next) => {
     console.log('req:', req);
@@ -36,6 +36,38 @@ const protect = asyncHandler(async (req, res, next) => {
     }
 });
 
+// Loads the requesting user's role/permissions and checks them against requiredCodes (isAdmin bypasses check)
+const authorize = (...requiredCodes) => asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.id).populate({
+        path: 'role',
+        populate: { path: 'permissions' }
+    });
+
+    if (!user) {
+        res.status(401);
+        throw new Error('Not authorized');
+    }
+
+    req.user = user;
+
+    if (user.isAdmin) {
+        return next();
+    }
+
+    const userPermissionCodes = (user.role && user.role.permissions || [])
+        .map((permission) => permission.code);
+
+    const hasAllPermissions = requiredCodes.every((code) => userPermissionCodes.includes(code));
+
+    if (!hasAllPermissions) {
+        res.status(403);
+        throw new Error('No tiene permisos para realizar esta acción');
+    }
+
+    next();
+});
+
 module.exports = {
-    protect
+    protect,
+    authorize
 }

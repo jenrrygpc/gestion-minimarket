@@ -3,6 +3,30 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 
+// Builds the HTTP response shape shared by login/register/getMe (role + permission codes, no password)
+// keeps both `id` (used by auth/session state) and `_id` (used by the Usuarios admin list/edit screen)
+const buildUserResponse = (user, token) => ({
+  id: user._id,
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  isAdmin: user.isAdmin,
+  role: user.role && {
+    id: user.role._id,
+    name: user.role.name,
+    permissions: (user.role.permissions || []).map((permission) => permission.code)
+  },
+  stores: (user.stores || []).map((store) => ({
+    id: store._id,
+    name: store.name
+  })),
+  token
+});
+
+const populateUser = (query) => query
+  .populate({ path: 'role', populate: { path: 'permissions' } })
+  .populate('stores');
+
 // @desc Register a new user
 // @route /api/users
 // @access Public
@@ -11,10 +35,11 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
-    role
+    role,
+    stores
   } } = req.body;
 
-  if (!name || !email || !password) {
+  if (!name || !email || !password || !role) {
     res.status(400);
     throw new Error('Please include all fields');
   }
@@ -37,18 +62,14 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password: hashedPassword,
-    role
+    role,
+    stores: stores || []
   });
   console.log('userCreate');
 
   if (user) {
-    res.status(201).json({
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id)
-    })
+    const populatedUser = await populateUser(User.findById(user._id));
+    res.status(201).json(buildUserResponse(populatedUser, generateToken(user._id)));
   } else {
     res.status(400);
     throw Error('Invalid user data');
@@ -60,12 +81,9 @@ const updateUser = asyncHandler(async (req, res) => {
   const { payload: {
     name,
     password,
-    role
+    role,
+    stores
   } } = req.body;
-
-  //Hash password
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
 
   const user = await User.findById(req.params.id);
   if (!user) {
@@ -73,16 +91,21 @@ const updateUser = asyncHandler(async (req, res) => {
     throw new Error('User not found');
   }
 
-  const updatedUser = await User.findByIdAndUpdate(req.params.id,
-    {
-      name,
-      password: hashedPassword,
-      role
-    },
-    { new: true });
+  const updateData = { name, role };
+  if (stores) {
+    updateData.stores = stores;
+  }
+  if (password) {
+    const salt = await bcrypt.genSalt(10);
+    updateData.password = await bcrypt.hash(password, salt);
+  }
+
+  const updatedUser = await populateUser(
+    User.findByIdAndUpdate(req.params.id, updateData, { new: true })
+  );
 
   console.log('updatedUser ..:', updatedUser);
-  res.status(200).json(updatedUser);
+  res.status(200).json(buildUserResponse(updatedUser));
 
 });
 
@@ -91,7 +114,7 @@ const loginUser = asyncHandler(async (req, res) => {
   console.log('loginUser...');
 
   const { payload: { email, password } } = req.body;
-  const user = await User.findOne({ email });
+  const user = await populateUser(User.findOne({ email }));
 
   console.log('user...');
 
@@ -102,13 +125,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
   //Check user and password match
   if (await bcrypt.compare(password, user.password)) {
-    res.status(200).json({
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      token: generateToken(user._id)
-    });
+    res.status(200).json(buildUserResponse(user, generateToken(user._id)));
   } else {
     res.status(401);
     throw new Error('Invalid credentials!');
@@ -118,13 +135,9 @@ const loginUser = asyncHandler(async (req, res) => {
 
 const getMe = asyncHandler(async (req, res) => {
 
-  const user = await User.findById(req.id);
+  const user = await populateUser(User.findById(req.id));
 
-  res.status(200).json({
-    id: user._id,
-    name: user.name,
-    email: user.email
-  });
+  res.status(200).json(buildUserResponse(user));
 });
 
 //enviar a otro archivo de utilitarios o commons
@@ -150,14 +163,13 @@ const getUsers = asyncHandler(async (req, res) => {
   }
   let users;
   if (name) {
-    users = await User.find({ name: new RegExp(name, 'i') });
+    users = await populateUser(User.find({ name: new RegExp(name, 'i') }));
   } else {
-    users = await User.find({
-    });
+    users = await populateUser(User.find({}));
   }
 
   console.log('users ..:', users);
-  res.status(200).json(users);
+  res.status(200).json(users.map((u) => buildUserResponse(u)));
 });
 
 module.exports = {

@@ -119,24 +119,26 @@ function Header() {
     setOpenMenuIndex(openMenuIndex === index ? null : index);
   };
 
-  // FILTRAR MENÚ SEGÚN ROL DEL USUARIO
+  // FILTRAR MENÚ SEGÚN PERMISOS DEL ROL DEL USUARIO
+  const userPermissionCodes = user?.role?.permissions || [];
+
   const filteredSidebarData = SidebarData.filter(item => {
-    // Si no tiene campo roles, se muestra para todos
-    if (!item.roles || item.roles.length === 0) {
+    // Si no tiene campo permission, se muestra para todos
+    if (!item.permission) {
       return true;
     }
-    // Si tiene roles, verificar que el rol del usuario esté incluido
-    return user && item.roles.includes(user.role);
+    // Si tiene permission, verificar que el usuario cuente con ese código
+    return user?.isAdmin || userPermissionCodes.includes(item.permission);
   }).map(item => {
-    // Filtrar también los subNav si tienen roles
+    // Filtrar también los subNav si tienen permission
     if (item.subNav && item.subNav.length > 0) {
       const filteredSubNav = item.subNav.filter(subItem => {
-        // Si el subNav no tiene campo roles, se muestra
-        if (!subItem.roles || subItem.roles.length === 0) {
+        // Si el subNav no tiene campo permission, se muestra
+        if (!subItem.permission) {
           return true;
         }
-        // Si tiene roles, verificar que el rol del usuario esté incluido
-        return user && subItem.roles.includes(user.role);
+        // Si tiene permission, verificar que el usuario cuente con ese código
+        return user?.isAdmin || userPermissionCodes.includes(subItem.permission);
       });
       
       return {
@@ -152,7 +154,7 @@ function Header() {
     <IconContext.Provider value={{ color: '#fff' }}>
       <Nav>
         {
-          user ? (
+          user && store ? (
             <NavIcon to='#'>
               <FaBars onClick={changeSidebar} />
             </NavIcon>

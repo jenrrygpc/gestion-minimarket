@@ -12,7 +12,7 @@ export const SidebarData = [
     icon: <AiIcons.AiFillHome />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
-    roles: ['ADMIN', 'GERENTE', 'CAJERO'],
+    permission: 'MENU_VENTAS',
 
     subNav: [
       {
@@ -23,8 +23,7 @@ export const SidebarData = [
       {
         title: 'Venta por código',
         path: '/ventas/venta',
-        icon: <FcIcons.FcSalesPerformance />,
-        roles: ['ADMIN', 'GERENTE', 'CAJERO'],
+        icon: <FcIcons.FcSalesPerformance />
       }
     ]
   },
@@ -34,19 +33,17 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
-    roles: ['ADMIN', 'GERENTE'],
+    permission: 'MENU_PRODUCTOS',
     subNav: [
       {
         title: 'Registrar producto venta',
         path: '/productos/venta',
-        icon: <IoIcons.IoIosPaper />,
-        roles: ['ADMIN', 'GERENTE'],
+        icon: <IoIcons.IoIosPaper />
       },
       {
         title: 'Registrar',
         path: '/productos/registro',
-        icon: <IoIcons.IoIosPaper />,
-        roles: ['ADMIN', 'GERENTE'],
+        icon: <IoIcons.IoIosPaper />
       }
     ]
   },
@@ -56,13 +53,12 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
-    roles: ['ADMIN', 'GERENTE', 'ALMACENERO'],
+    permission: 'MENU_INVENTARIO',
     subNav: [
       {
         title: 'Nuevo movimiento',
         path: '/inventario/nuevo',
-        icon: <IoIcons.IoIosPaper />,
-        roles: ['ADMIN', 'GERENTE', 'ALMACENERO'],
+        icon: <IoIcons.IoIosPaper />
       }/*,
       {
         title: 'Movimientos',
@@ -123,7 +119,7 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
-    roles: ['ADMIN', 'GERENTE'],
+    permission: 'MENU_MAESTROS',
     subNav: [
       {
         title: 'Categoria',
@@ -168,12 +164,18 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
-    roles: ['ADMIN', 'GERENTE'],
+    permission: 'MENU_USUARIOS',
     subNav: [
       {
         title: 'Nuevo',
         path: '/usuarios/nuevo',
         icon: <IoIcons.IoIosPaper />
+      },
+      {
+        title: 'Roles',
+        path: '/usuarios/roles',
+        icon: <IoIcons.IoIosPaper />,
+        permission: 'MENU_ROLES'
       }
     ]
   },
@@ -183,7 +185,7 @@ export const SidebarData = [
     icon: <FaIcons.FaCartPlus />,
     iconClosed: <RiIcons.RiArrowDownSFill />,
     iconOpened: <RiIcons.RiArrowUpSFill />,
-    roles: ['ADMIN', 'GERENTE'],
+    permission: 'MENU_PRUEBA',
     subNav: [
       {
         title: 'Test 01',

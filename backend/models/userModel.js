@@ -15,22 +15,19 @@ const userSchema = mongoose.Schema({
     required: [true, 'Please add a password']
   },
   role: {
-    type: String,
-    enum: ['ADMIN', 'GERENTE', 'ALMACENERO', 'CAJERO'],
-    default: 'CAJERO'
+    type: mongoose.Schema.Types.ObjectId,
+    required: [true, 'Please assign a role'],
+    ref: 'Role'
   },
+  stores: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Store'
+  }],
   isAdmin: {
     type: Boolean,
     required: true,
     default: false
-  },
-  /*  
-  profile: {
-    type: String,
-    required: true,
-    default: 'USUARIO'
   }
-    */
 }, {
   timestamps: true
 });

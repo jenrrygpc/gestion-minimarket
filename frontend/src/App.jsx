@@ -2,9 +2,12 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import Header from "./components/Header";
+import RequireAuth from "./components/RequireAuth";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
+import SelectStore from "./pages/SelectStore";
+import Register from "./pages/Usuario";
+import Role from "./pages/Role";
 import ProductSale from "./pages/ProductSale";
 import Product from "./pages/Product";
 import Category from "./pages/Category";
@@ -28,22 +31,24 @@ function App() {
         <div className="">
           <Header />
           <Routes>
-            <Route path = '/' element = {<Home />} />
+            <Route path = '/' element = {<RequireAuth><Home /></RequireAuth>} />
             <Route path = '/login' element = {<Login />} />
-            <Route path = '/usuarios/nuevo' element = {<Register />} />
-            <Route path = '/productos/venta' element = {<ProductSale />} />
-            <Route path = '/productos/registro' element = {<Product />} />
-            <Route path = '/maestros/categoria' element = {<Category />} />
-            <Route path = '/maestros/presentacion' element = {<Display />} />
-            <Route path = '/maestros/metodos_pago' element = {<MetodoPago />} />
-            <Route path = '/maestros/tienda' element = {<Store />} />
-            <Route path = '/maestros/puntoventa' element = {<Pos />} />
-            <Route path = '/maestros/cliente' element = {<Customer />} />
-            <Route path = '/maestros/motivo_transaccion' element = {<ReasonTransaction />} />
-            <Route path = '/ventas/venta' element = {<Ventas />} />
-            <Route path = '/ventas/turno' element = {<PosShift />} />
-            <Route path = '/inventario/nuevo' element = {<Inventory />} />
-            <Route path = '/test/test01' element = {<Test />} />
+            <Route path = '/seleccionar-tienda' element = {<SelectStore />} />
+            <Route path = '/usuarios/nuevo' element = {<RequireAuth><Register /></RequireAuth>} />
+            <Route path = '/usuarios/roles' element = {<RequireAuth><Role /></RequireAuth>} />
+            <Route path = '/productos/venta' element = {<RequireAuth><ProductSale /></RequireAuth>} />
+            <Route path = '/productos/registro' element = {<RequireAuth><Product /></RequireAuth>} />
+            <Route path = '/maestros/categoria' element = {<RequireAuth><Category /></RequireAuth>} />
+            <Route path = '/maestros/presentacion' element = {<RequireAuth><Display /></RequireAuth>} />
+            <Route path = '/maestros/metodos_pago' element = {<RequireAuth><MetodoPago /></RequireAuth>} />
+            <Route path = '/maestros/tienda' element = {<RequireAuth><Store /></RequireAuth>} />
+            <Route path = '/maestros/puntoventa' element = {<RequireAuth><Pos /></RequireAuth>} />
+            <Route path = '/maestros/cliente' element = {<RequireAuth><Customer /></RequireAuth>} />
+            <Route path = '/maestros/motivo_transaccion' element = {<RequireAuth><ReasonTransaction /></RequireAuth>} />
+            <Route path = '/ventas/venta' element = {<RequireAuth><Ventas /></RequireAuth>} />
+            <Route path = '/ventas/turno' element = {<RequireAuth><PosShift /></RequireAuth>} />
+            <Route path = '/inventario/nuevo' element = {<RequireAuth><Inventory /></RequireAuth>} />
+            <Route path = '/test/test01' element = {<RequireAuth><Test /></RequireAuth>} />
           </Routes>
         </div>
       </Router>

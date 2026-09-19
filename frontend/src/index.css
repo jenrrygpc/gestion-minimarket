@@ -247,6 +247,17 @@ h3 {
   transform: scale(0.98);
 }
 
+.btn:disabled {
+  background: #b5b5b5;
+  border-color: #b5b5b5;
+  color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  transform: none;
+}
+
 .ticket-created {
   border: 1px solid #e6e6e6;
   border-radius: 5px;
@@ -801,4 +812,188 @@ footer {
 .listas-motivos-headings {
   font-weight: 700;
   background: #cfcece;
+}
+
+/*CSS para roles*/
+.listas-roles,
+.listas-roles-headings {
+  display: grid;
+  grid-template-columns: 20% 34% 16% 15% 7%;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  background: #f4f4f4;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 12px;
+  text-align: left;
+}
+
+.listas-roles-headings {
+  font-weight: 700;
+  background: #cfcece;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #ddd;
+  color: #333;
+}
+
+.badge-success {
+  background: #cdebd4;
+  color: #1d6b34;
+}
+
+.badge-muted {
+  background: #e6e6e6;
+  color: #777;
+}
+
+.list-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.list-toolbar input {
+  flex: 1;
+  padding: 9px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: inherit;
+}
+
+.empty-state {
+  text-align: center;
+  color: #777;
+  padding: 25px 10px;
+}
+
+/* Formularios dentro de ventanas modales */
+.modal-form .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+
+.modal-form .form-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.modal-form .field label {
+  display: block;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.modal-form .field input,
+.modal-form .field select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: inherit;
+}
+
+.modal-form .field-hint {
+  display: block;
+  font-size: 11px;
+  color: #777;
+  margin-top: 3px;
+}
+
+.checklist-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checklist-header button {
+  border: none;
+  background: none;
+  color: #333;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.checklist {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 400;
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Evita que la regla global de ancho 100% deforme los checkboxes */
+.checklist-item input[type='checkbox'],
+.checklist-item input[type='radio'] {
+  width: auto;
+  flex: none;
+  margin: 0;
+}
+
+.checklist-group-title {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #444;
+  background: #efefef;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-top: 6px;
+}
+
+.checklist-group-title .checklist-item {
+  font-weight: 700;
+}
+
+.checklist-group-count {
+  font-weight: 400;
+  color: #777;
+}
+
+.checklist-permissions {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  max-height: 300px;
+}
+
+.checklist-permissions .checklist-item {
+  padding-left: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.modal-actions .btn {
+  flex: 1;
 }

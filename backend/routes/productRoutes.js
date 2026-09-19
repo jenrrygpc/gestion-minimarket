@@ -5,16 +5,16 @@ const {
   updateProduct,
   updateProducts,
   getProduct } = require('../controllers/productControllerV2');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 router.route('/')
-  .post(protect, createProduct)
-  .get(protect, getProduct);
+  .post(protect, authorize('PRODUCTOS_CREAR'), createProduct)
+  .get(protect, authorize('PRODUCTOS_VER'), getProduct);
 
 router.route('/:id')
-  .put(protect, updateProduct);
+  .put(protect, authorize('PRODUCTOS_EDITAR'), updateProduct);
 
 router.route('/update-stock')
-  .patch(protect, updateProducts);
+  .patch(protect, authorize('PRODUCTOS_EDITAR'), updateProducts);
 
 module.exports = router;

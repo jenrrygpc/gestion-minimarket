@@ -9,22 +9,22 @@ const {
     getPreClosingSummary
 } = require('../controllers/posShiftController');
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createPosShift)
-    .get(protect, getPosShift);
+    .post(protect, authorize('TURNOS_CREAR'), createPosShift)
+    .get(protect, authorize('TURNOS_VER'), getPosShift);
 
 router.route('/valid')
-    .get(protect, getValidPosShift);
+    .get(protect, authorize('TURNOS_VER'), getValidPosShift);
 
 
 router.route('/close')
-    .post(protect, closePosShift);
+    .post(protect, authorize('TURNOS_EDITAR'), closePosShift);
 
 router.route('/:id')
-    .put(protect, updatePosShift);
+    .put(protect, authorize('TURNOS_EDITAR'), updatePosShift);
 
 router.route('/summary/:posShiftId')
-    .get(protect, getPreClosingSummary);
+    .get(protect, authorize('TURNOS_VER'), getPreClosingSummary);
 
 module.exports = router;

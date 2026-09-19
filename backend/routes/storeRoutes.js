@@ -6,15 +6,15 @@ const {
     updateStore,
     getStoresWithoutUser } = require('../controllers/storeController')
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createStore)
-    .get(protect, getStores);
+    .post(protect, authorize('TIENDAS_CREAR'), createStore)
+    .get(protect, authorize('TIENDAS_VER'), getStores);
 
 router.route('/public')
     .get(getStoresWithoutUser);
 
 router.route('/:id')
-    .put(protect, updateStore);
+    .put(protect, authorize('TIENDAS_EDITAR'), updateStore);
 
 module.exports = router;

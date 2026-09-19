@@ -4,12 +4,12 @@ const { createCategory,
     getCategories,
     updateCategory } = require('../controllers/categoryController')
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createCategory)
-    .get(protect, getCategories);
+    .post(protect, authorize('CATEGORIAS_CREAR'), createCategory)
+    .get(protect, authorize('CATEGORIAS_VER'), getCategories);
 
 router.route('/:id')
-    .put(protect, updateCategory);
+    .put(protect, authorize('CATEGORIAS_EDITAR'), updateCategory);
 
 module.exports = router;

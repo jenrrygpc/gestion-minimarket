@@ -36,3 +36,23 @@ node backend/seeders/reasonTransactionSeeder.js
 
 - Los motivos marcados con "afecta costo" recalcularán el costo promedio ponderado
 - Los motivos que requieren documento validarán que se proporcione un número de documento
+
+## roleAndPermissionSeeder.js
+
+Crea el catálogo base de permisos (API + MENU) y los roles ADMIN, GERENTE, ALMACENERO y CAJERO con sus permisos asignados. Además migra los usuarios existentes cuyo campo `role` todavía sea un string legado, asignándoles el Role equivalente y las tiendas que ya poseían.
+
+### Uso
+
+```bash
+# Desde la raíz del proyecto
+node backend/seeders/roleAndPermissionSeeder.js
+```
+
+### Requisitos
+
+- Tener las variables de entorno configuradas (MONGO_URI)
+
+### Notas
+
+- Es idempotente: puede ejecutarse varias veces, hace upsert de permisos y roles por `code`/`name`.
+- Usuarios sin tienda asignada tras la migración deben actualizarse manualmente desde el módulo de Usuarios.

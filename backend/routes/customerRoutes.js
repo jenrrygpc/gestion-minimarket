@@ -5,12 +5,12 @@ const {
     getCustomers,
     updateCustomer } = require('../controllers/customerController')
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 router.route('/')
-    .post(protect, createCustomer)
-    .get(protect, getCustomers);
+    .post(protect, authorize('CLIENTES_CREAR'), createCustomer)
+    .get(protect, authorize('CLIENTES_VER'), getCustomers);
 
 router.route('/:id')
-    .put(protect, updateCustomer);
+    .put(protect, authorize('CLIENTES_EDITAR'), updateCustomer);
 
 module.exports = router;

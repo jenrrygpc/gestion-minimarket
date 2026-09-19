@@ -2,7 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from '../features/auth/authSlice';
 import productReducer from '../features/products/productSlice';
 import measureReducer from '../features/measures/measureSlice';
-import profileReducer from '../features/profiles/profileSlice';
+import roleReducer from '../features/roles/roleSlice';
+import permissionReducer from '../features/permissions/permissionSlice';
 import masterReducer from '../features/masters/masterSlice';
 import storeReducer from '../features/stores/storeSlice';
 import categoryReducer from '../features/categories/categorySlice';
@@ -19,7 +20,8 @@ export const store = configureStore({
     auth: authReducer,
     product: productReducer,
     measure: measureReducer,
-    profile: profileReducer,
+    role: roleReducer,
+    permission: permissionReducer,
     master: masterReducer,
     sale: saleReducer,
     user: userReducer,

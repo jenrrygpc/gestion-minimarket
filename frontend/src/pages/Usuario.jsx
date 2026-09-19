@@ -7,7 +7,8 @@ import { AiTwotoneEdit } from "react-icons/ai";
 import { useSelector, useDispatch } from "react-redux";
 import ReactPaginate from 'react-paginate'; // pagination library
 import { register, getUsers, setUser, reset, resetUser, updateUser } from "../features/auth/userSlice";
-import { getProfiles } from "../features/profiles/profileSlice";
+import { getRoles } from "../features/roles/roleSlice";
+import { getStores } from "../features/stores/storeSlice";
 import Spinner from '../components/Spinner';
 import Message from '../components/Message';
 
@@ -17,6 +18,8 @@ import Modal from 'react-modal';
 const customStyles = {
   content: {
     width: '600px',
+    maxHeight: '85vh',
+    overflowY: 'auto',
     top: '50%',
     left: '50%',
     right: 'auto',
@@ -35,7 +38,8 @@ const initialState = {
   email: '',
   password: '',
   confirmPassword: '',
-  role: ''
+  role: '',
+  stores: []
 }
 
 function Register() {
@@ -54,17 +58,19 @@ function Register() {
   //state para abrir o cerrar el modal.
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
-  /*
-  const { profiles } = useSelector(
-    (state) => state.profile
+  const { roles } = useSelector(
+    (state) => state.role
   );
-  */
-  //initialState.profileName = (profiles[0] || {}).name
+
+  const { stores } = useSelector(
+    (state) => state.store
+  );
+
   console.log('initialState ..:', initialState);
 
   const [formData, setFormData] = useState(initialState);
 
-  const { name, email, password, confirmPassword, role } = formData;
+  const { name, email, password, confirmPassword, role, stores: selectedStores } = formData;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -100,7 +106,8 @@ function Register() {
   // useEffect usado para cargar la data de medidas. (solo se ejecuta la primera vez)
   useEffect(() => {
     console.log('useEffect 2 ...');
-    dispatch(getProfiles());
+    dispatch(getRoles());
+    dispatch(getStores());
     dispatch(getUsers());
     //refInputCode.current.focus();
   }, []);
@@ -127,7 +134,8 @@ function Register() {
     setFormData({
       name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role?.id || '',
+      stores: (user.stores || []).map((s) => s.id)
     });
     //}
   }, [user]);
@@ -136,6 +144,25 @@ function Register() {
     setFormData((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value
+    }));
+  };
+
+  const onToggleStore = (storeId) => {
+    setFormData((prevState) => {
+      const alreadySelected = prevState.stores.includes(storeId);
+      return {
+        ...prevState,
+        stores: alreadySelected
+          ? prevState.stores.filter((id) => id !== storeId)
+          : [...prevState.stores, storeId]
+      };
+    });
+  };
+
+  const onToggleAllStores = () => {
+    setFormData((prevState) => ({
+      ...prevState,
+      stores: prevState.stores.length === stores.length ? [] : stores.map((store) => store._id)
     }));
   };
 
@@ -164,14 +191,16 @@ function Register() {
           id: user._id,
           name,
           password,
-          role
+          role,
+          stores: selectedStores
         }));
       } else {
         dispatch(register({
           name,
           email,
           password,
-          role
+          role,
+          stores: selectedStores
         }));
       }
 
@@ -262,7 +291,7 @@ function Register() {
             <div className="listas" key={user._id}>
               <div>{user.name}</div>
               <div>{user.email}</div>
-              <div> {user.role}</div>
+              <div> {user.role?.name}</div>
               <div>
                 
                 
@@ -294,7 +323,7 @@ function Register() {
 
 
         <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStyles} contentLabel='Nuevo Usuario'>
-          <h3>Nuevo Usuario</h3>
+          <h3>{user._id ? 'Editar Usuario' : 'Nuevo Usuario'}</h3>
           <hr></hr>
 
           <button className='btn-close' onClick={closeModal}>
@@ -302,110 +331,105 @@ function Register() {
           </button>
           <br></br>
 
-          <section className="form">
+          <section className="form modal-form">
             <form onSubmit={onSubmit}>
-              <div className="form-group">
-                <table style={{ width: '100%' }}>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <label htmlFor="name">Nombre ..:</label>
-                      </td>
-                      <td>
+              <div className="form-grid">
 
+                <div className="field">
+                  <label htmlFor="name">Nombre</label>
+                  <input
+                    type='text'
+                    id='name'
+                    name='name'
+                    value={name}
+                    onChange={onChange}
+                    placeholder='Ej. Juan Pérez'
+                    required />
+                </div>
+
+                <div className="field">
+                  <label htmlFor="email">Correo</label>
+                  <input
+                    type='email'
+                    id='email'
+                    name='email'
+                    value={email}
+                    onChange={onChange}
+                    placeholder='usuario@correo.com'
+                    disabled={user._id ? true : false}
+                    required />
+                  {user._id && <small className="field-hint">El correo no se puede modificar</small>}
+                </div>
+
+                <div className="field">
+                  <label htmlFor="password">Clave</label>
+                  <input
+                    type='password'
+                    id='password'
+                    name='password'
+                    value={password}
+                    onChange={onChange}
+                    placeholder='Ingrese la clave'
+                    required />
+                </div>
+
+                <div className="field">
+                  <label htmlFor="confirmPassword">Confirmar clave</label>
+                  <input
+                    type='password'
+                    id='confirmPassword'
+                    name='confirmPassword'
+                    value={confirmPassword}
+                    onChange={onChange}
+                    placeholder='Repita la clave'
+                    required />
+                </div>
+
+                <div className="field full-width">
+                  <label htmlFor="role">Rol</label>
+                  <select
+                    name="role"
+                    id="role"
+                    value={role}
+                    onChange={onChange}
+                    required>
+                    <option value=''>Seleccione un rol</option>
+                    {roles.map((role) => (
+                      <option key={role._id} value={role._id}>{role.name}</option>
+                    ))}
+                  </select>
+                  <small className="field-hint">Define a qué opciones del menú y APIs tendrá acceso</small>
+                </div>
+
+                <div className="field full-width">
+                  <div className="checklist-header">
+                    <label>Tiendas asignadas ({selectedStores.length}/{stores.length})</label>
+                    {stores.length > 0 && (
+                      <button type="button" onClick={onToggleAllStores}>
+                        {selectedStores.length === stores.length ? 'Quitar todas' : 'Seleccionar todas'}
+                      </button>
+                    )}
+                  </div>
+                  <div className="checklist">
+                    {stores.length === 0 && <span>No hay tiendas registradas</span>}
+                    {stores.map((store) => (
+                      <label className="checklist-item" key={store._id}>
                         <input
-                          type='text'
-                          className='form-control'
-                          id='name'
-                          name='name'
-                          value={name}
-                          onChange={onChange}
-                          placeholder='Ingrese su nombre'
-                          required />
+                          type='checkbox'
+                          checked={selectedStores.includes(store._id)}
+                          onChange={() => onToggleStore(store._id)} />
+                        {store.name}
+                      </label>
+                    ))}
+                  </div>
+                  <small className="field-hint">El usuario podrá elegir entre estas tiendas al iniciar sesión</small>
+                </div>
 
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <label htmlFor="name">Correo ..:</label>
-                      </td>
-                      <td>
-                        <input
-                          type='email'
-                          className='form-control'
-                          id='email'
-                          name='email'
-                          value={email}
-                          onChange={onChange}
-                          placeholder='Ingrese su correo'
-                          disabled={user._id ? true : false}
-                          required />
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <label htmlFor="name">Clave ..:</label>
-                      </td>
-                      <td>
-                        <input
-                          type='password'
-                          className='form-control'
-                          id='password'
-                          name='password'
-                          value={password}
-                          onChange={onChange}
-                          placeholder='Ingrese su clave'
-                          required />
-
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <label htmlFor="name">Confirmar ..:</label>
-                      </td>
-                      <td>
-                        <input
-                          type='password'
-                          className='form-control'
-                          id='confirmPassword'
-                          name='confirmPassword'
-                          value={confirmPassword}
-                          onChange={onChange}
-                          placeholder='Confirmar clave'
-                          required />
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <label htmlFor="name">Role ..:</label>
-                      </td>
-                      <td>
-
-                        <select
-                          name="role"
-                          id="role"
-                          value={role}
-                          onChange={onChange}
-                          className='form-control'>
-                          
-                          <option value="CAJERO">CAJERO</option>                          
-                          <option value="ALMACENERO">ALMACENERO</option>
-                          <option value="GERENTE">GERENTE</option>
-                          <option value="ADMIN">ADMIN</option>                          
-
-                        </select>
-
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
               </div>
-              <div className="form-group">
-                <button className="btn btn-block">{user._id ? 'Actualizar' : 'Registrar'}</button>
+
+              <div className="modal-actions">
+                <button type="button" className="btn btn-reverse" onClick={closeModal}>Cancelar</button>
+                <button className="btn">{user._id ? 'Actualizar' : 'Registrar'}</button>
               </div>
             </form>
           </section>

@@ -3,9 +3,14 @@ import axios from 'axios';
 const API_URL = '/api/users/';
 
 // Register User
-const register = async (userData) => {
+const register = async (userData, token) => {
   console.log('userData ..:', userData);
-  const response = await axios.post(API_URL, { payload: userData });
+  const config = {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  };
+  const response = await axios.post(API_URL, { payload: userData }, config);
   console.log('response ..:', response);
 
   return response.data;
